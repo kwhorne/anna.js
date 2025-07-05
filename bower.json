@@ -1,0 +1,24 @@
+{
+  "name": "anna.js",
+  "version": "3.8.0",
+  "main": [
+    "js/anna.js",
+    "css/anna.css"
+  ],
+  "homepage": "https://insidenext.no",
+  "license": "MIT",
+  "description": "Anna - The HTML Presentation Framework",
+  "authors": [
+    "Knut W. Horne <knut@insidenext.no>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/knut-horne/anna.js.git"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ]
+}
