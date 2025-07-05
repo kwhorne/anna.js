@@ -1,8 +1,8 @@
 {
   "name": "anna.js",
-  "version": "3.8.0",
+  "version": "1.0.0",
   "description": "Anna - The HTML Presentation Framework",
-  "homepage": "https://insidenext.no",
+  "homepage": "https://kwhorne.com",
   "subdomain": "anna",
   "main": "js/anna.js",
   "scripts": {
@@ -12,12 +12,12 @@
   },
   "author": {
     "name": "Knut W. Horne",
-    "email": "knut@insidenext.no",
-    "web": "https://insidenext.no"
+    "email": "kh@gets.no",
+    "web": "https://kwhorne.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/knut-horne/anna.js.git"
+    "url": "git://github.com/kwhorne/anna.js.git"
   },
   "engines": {
     "node": ">=9.0.0"
