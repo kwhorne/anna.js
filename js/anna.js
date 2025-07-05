@@ -427,7 +427,7 @@
 
 		// Do not accept new dependencies via query config to avoid
 		// the potential of malicious script injection
-		if( typeof query['dependencies'] !== 'undefined' ) delete query['dependencies'];
+		if( typeof query.dependencies !== 'undefined' ) delete query.dependencies;
 
 		// Copy options over to our config object
 		extend( config, options );
@@ -805,7 +805,7 @@
 		else if( node.nodeType === 1 ) {
 
 			var isAriaHidden = node.getAttribute( 'aria-hidden' );
-			var isDisplayHidden = window.getComputedStyle( node )['display'] === 'none';
+			var isDisplayHidden = window.getComputedStyle( node ).display === 'none';
 			if( isAriaHidden !== 'true' && !isDisplayHidden ) {
 
 				toArray( node.childNodes ).forEach( function( child ) {
@@ -1440,7 +1440,7 @@
 		}
 		else {
 			keyboardShortcuts['N  ,  SPACE']   = 'Next slide';
-			keyboardShortcuts['P']             = 'Previous slide';
+			keyboardShortcuts.P             = 'Previous slide';
 			keyboardShortcuts['&#8592;  ,  H'] = 'Navigate left';
 			keyboardShortcuts['&#8594;  ,  L'] = 'Navigate right';
 			keyboardShortcuts['&#8593;  ,  K'] = 'Navigate up';
@@ -1450,7 +1450,7 @@
 		keyboardShortcuts['Home  ,  &#8984;/CTRL &#8592;'] = 'First slide';
 		keyboardShortcuts['End  ,  &#8984;/CTRL &#8594;']  = 'Last slide';
 		keyboardShortcuts['B  ,  .']                       = 'Pause';
-		keyboardShortcuts['F']                             = 'Fullscreen';
+		keyboardShortcuts.F                             = 'Fullscreen';
 		keyboardShortcuts['ESC, O']                        = 'Slide overview';
 
 		sync();
