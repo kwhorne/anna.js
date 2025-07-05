@@ -19,6 +19,11 @@
 
 ## 💻 Utvikling
 
+### Krav
+- Node.js >= 16.0.0
+- npm eller yarn
+
+### Installasjon
 ```bash
 # Installer avhengigheter
 npm install
@@ -28,24 +33,71 @@ npm start
 
 # Bygg for produksjon
 npm run build
+
+# Kompiler CSS fra SCSS
+sass css/anna.scss css/anna.css
 ```
+
+### Moderne teknologi
+- **Dart Sass** - Moderne CSS-kompiler
+- **ES2020+** - Moderne JavaScript-støtte
+- **Responsive design** - Mobile-first tilnærming
 
 ## 🎨 Temaer
 
-Anna.js kommer med flere innebygde temaer:
+Anna.js kommer med 12 innebygde temaer:
 - **Black** - Elegant mørk design
 - **White** - Ren, minimal stil
-- **League** - Moderne og fargerik
+- **League** - Moderne og fargerik (standard)
 - **Beige** - Varm og behagelig
 - **Sky** - Luftig og lett
 - **Night** - Sofistikert mørk
 - **Serif** - Klassisk og tidløs
 - **Simple** - Minimalistisk
 - **Solarized** - Utviklervennlig
+- **Blood** - Dramatisk rød
+- **Moon** - Mystisk blå
 
-## 📖 Dokumentasjon
+### Endre tema
+```html
+<link rel="stylesheet" href="css/theme/black.css">
+```
+
+## 📆 Dokumentasjon
 
 Se `demo.html` for eksempler på bruk og funksjoner.
+
+## ⌨️ Keyboard Shortcuts
+
+- **Piltaster** - Naviger mellom slides
+- **Space/N** - Neste slide
+- **P** - Forrige slide
+- **ESC/O** - Slide overview
+- **S** - Speaker notes
+- **F** - Fullscreen
+- **B/.** - Pause (black screen)
+
+## 🔌 Avanserte funksjoner
+
+### Fragmenter
+```html
+<p class="fragment">Vises først</p>
+<p class="fragment fade-in">Fades inn</p>
+<p class="fragment highlight-red">Highlightes rød</p>
+```
+
+### Vertikale slides
+```html
+<section>
+  <section>Horisontal slide</section>
+  <section>Vertikal slide</section>
+</section>
+```
+
+### Markdown støtte
+```html
+<section data-markdown="slides.md"></section>
+```
 
 ## 🤝 Bidrag
 
@@ -57,8 +109,9 @@ MIT License - Copyright (C) 2025 Knut W. Horne
 
 ## 🔗 Links
 
-- **Nettside**: [insidenext.no](https://insidenext.no)
 - **Utvikler**: [Knut W. Horne](https://kwhorne.com)
+- **Repository**: [github.com/kwhorne/anna.js](https://github.com/kwhorne/anna.js)
+- **Demo**: Åpne `demo.html` for live demo
 
 ---
 
