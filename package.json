@@ -5,6 +5,9 @@
   "homepage": "https://kwhorne.com",
   "subdomain": "anna",
   "main": "js/anna.js",
+  "bin": {
+    "anna": "cli/generate.js"
+  },
   "scripts": {
     "build:sass-core": "sass css/anna.scss css/anna.css",
     "build:sass-themes": "sass --no-source-map css/theme/source/:css/theme/",
@@ -14,6 +17,7 @@
     "build:js": "terser js/anna.js -o js/anna.min.js --comments '/^!/'",
     "build": "npm run build:css && npm run build:js",
     "start": "browser-sync start --server --files 'css/*.css, *.html, js/*.js'",
+    "generate": "node cli/generate.js",
     "lint": "eslint js/anna.js",
     "test": "npm run lint"
   },
@@ -36,6 +40,8 @@
     "clean-css-cli": "^5.6.3",
     "eslint": "^10.2.0",
     "express": "^4.21.2",
+    "gray-matter": "^4.0.3",
+    "marked": "^18.0.0",
     "mustache": "^4.2.0",
     "postcss": "^8.5.9",
     "postcss-cli": "^11.0.1",

@@ -13,9 +13,58 @@
 
 ## 🚀 Kom i gang
 
-1. Last ned Anna.js
-2. Åpne `index.html` i nettleseren din
-3. Begynn å redigere slides!
+### Markdown (anbefalt)
+
+Skriv presentasjonen din i en enkelt Markdown-fil:
+
+```markdown
+---
+title: Min presentasjon
+theme: moon
+transition: slide
+---
+
+# Velkommen
+
+Første slide
+
+---
+
+## Andre slide
+
+<!-- .fragments -->
+- Punkt 1
+- Punkt 2
+- Punkt 3
+
+---
+
+## Vertikale slides
+
+--
+
+### Detaljer under
+
+--
+
+### Enda mer
+
+---
+
+# Takk!
+```
+
+Generer HTML:
+
+```bash
+npx anna generate presentasjon.md
+npx anna generate presentasjon.md --watch   # Regenerer ved endringer
+```
+
+### HTML
+
+1. Åpne `index.html` i nettleseren din
+2. Rediger slides direkte i HTML
 
 ## 💻 Utvikling
 
@@ -96,10 +145,20 @@ Se `demo.html` for eksempler på bruk og funksjoner.
 </section>
 ```
 
-### Markdown støtte
-```html
-<section data-markdown="slides.md"></section>
+### Markdown-generator
+
+```bash
+npx anna generate slides.md              # Generer slides.html
+npx anna generate slides.md output.html  # Spesifiser output
+npx anna generate slides.md --watch      # Watch-modus
 ```
+
+Markdown-funksjoner:
+- `---` separerer horisontale slides
+- `--` separerer vertikale slides
+- `<!-- .fragments -->` før en liste animerer hvert punkt
+- `<!-- .slide: data-background="#hex" -->` for slide-attributter
+- `Note:` for speaker notes
 
 ## 🤝 Bidrag
 
