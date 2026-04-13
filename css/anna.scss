@@ -1,3 +1,5 @@
+@use "sass:math";
+
 /*!
  * anna.js
  * http://annajs.com
@@ -246,11 +248,11 @@ $controlsArrowAngleActive: 36deg;
 
 @mixin controlsArrowTransform( $angle ) {
 	&:before {
-		transform: translateX(($controlArrowSize - $controlArrowLength)/2) translateY(($controlArrowSize - $controlArrowThickness)/2) rotate( $angle );
+		transform: translateX(math.div($controlArrowSize - $controlArrowLength, 2)) translateY(math.div($controlArrowSize - $controlArrowThickness, 2)) rotate( $angle );
 	}
 
 	&:after {
-		transform: translateX(($controlArrowSize - $controlArrowLength)/2) translateY(($controlArrowSize - $controlArrowThickness)/2) rotate( -$angle );
+		transform: translateX(math.div($controlArrowSize - $controlArrowLength, 2)) translateY(math.div($controlArrowSize - $controlArrowThickness, 2)) rotate( -$angle );
 	}
 }
 
@@ -299,11 +301,11 @@ $controlsArrowAngleActive: 36deg;
 		left: 0;
 		width: $controlArrowLength;
 		height: $controlArrowThickness;
-		border-radius: $controlArrowThickness/2;
+		border-radius: math.div($controlArrowThickness, 2);
 		background-color: currentColor;
 
 		transition: all 0.15s ease, background-color 0.8s ease;
-		transform-origin: floor(($controlArrowThickness/2)*10)/10 50%;
+		transform-origin: math.div(math.floor(math.div($controlArrowThickness, 2) * 10), 10) 50%;
 		will-change: transform;
 	}
 
@@ -325,13 +327,13 @@ $controlsArrowAngleActive: 36deg;
 
 	.navigate-left {
 		right: $controlArrowSize + $controlArrowSpacing*2;
-		bottom: $controlArrowSpacing + $controlArrowSize/2;
+		bottom: $controlArrowSpacing + math.div($controlArrowSize, 2);
 		transform: translateX( -10px );
 	}
 
 	.navigate-right {
 		right: 0;
-		bottom: $controlArrowSpacing + $controlArrowSize/2;
+		bottom: $controlArrowSpacing + math.div($controlArrowSize, 2);
 		transform: translateX( 10px );
 
 		.controls-arrow {
@@ -344,7 +346,7 @@ $controlsArrowAngleActive: 36deg;
 	}
 
 	.navigate-up {
-		right: $controlArrowSpacing + $controlArrowSize/2;
+		right: $controlArrowSpacing + math.div($controlArrowSize, 2);
 		bottom: $controlArrowSpacing*2 + $controlArrowSize;
 		transform: translateY( -10px );
 
@@ -354,7 +356,7 @@ $controlsArrowAngleActive: 36deg;
 	}
 
 	.navigate-down {
-		right: $controlArrowSpacing + $controlArrowSize/2;
+		right: $controlArrowSpacing + math.div($controlArrowSize, 2);
 		bottom: 0;
 		transform: translateY( 10px );
 
@@ -473,25 +475,25 @@ $controlsArrowAngleActive: 36deg;
 		.navigate-left {
 			top: 50%;
 			left: $spacing;
-			margin-top: -$controlArrowSize/2;
+			margin-top: math.div(-$controlArrowSize, 2);
 		}
 
 		.navigate-right {
 			top: 50%;
 			right: $spacing;
-			margin-top: -$controlArrowSize/2;
+			margin-top: math.div(-$controlArrowSize, 2);
 		}
 
 		.navigate-up {
 			top: $spacing;
 			left: 50%;
-			margin-left: -$controlArrowSize/2;
+			margin-left: math.div(-$controlArrowSize, 2);
 		}
 
 		.navigate-down {
 			bottom: $spacing;
 			left: 50%;
-			margin-left: -$controlArrowSize/2;
+			margin-left: math.div(-$controlArrowSize, 2);
 		}
 	}
 
@@ -1657,7 +1659,7 @@ $notesWidthPercent: 25%;
 .anna .speaker-notes {
 	display: none;
 	position: absolute;
-	width: $notesWidthPercent / (1-$notesWidthPercent/100) * 1%;
+	width: math.div($notesWidthPercent, 1 - math.div($notesWidthPercent, 100%)) * 1%;
 	height: 100%;
 	top: 0;
 	left: 100%;
@@ -1720,7 +1722,7 @@ $notesWidthPercent: 25%;
 		top: 100%;
 		left: 0;
 		width: 100%;
-		height: (30/0.7)*1%;
+		height: math.div(30, 0.7) * 1%;
 		height: 30vh;
 		border: 0;
 	}
@@ -1734,7 +1736,7 @@ $notesWidthPercent: 25%;
 
 	.anna.show-notes .speaker-notes {
 		top: 100%;
-		height: (40/0.6)*1%;
+		height: math.div(40, 0.6) * 1%;
 		height: 40vh;
 	}
 

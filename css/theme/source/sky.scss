@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /**
  * Sky theme for anna.js.
  *
@@ -26,7 +28,7 @@ $headingLetterSpacing: -0.08em;
 $headingTextShadow: none;
 $backgroundColor: #f7fbfc;
 $linkColor: #3b759e;
-$linkColorHover: lighten( $linkColor, 20% );
+$linkColorHover: color.adjust( $linkColor, $lightness: 20% );
 $selectionBackgroundColor: #134674;
 
 // Fix links so they are not cut off

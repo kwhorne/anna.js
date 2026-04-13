@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /**
  * Solarized Light theme for anna.js.
  * Author: Achim Staebler
@@ -48,7 +50,7 @@ $headingColor: $base01;
 $headingTextShadow: none;
 $backgroundColor: $base3;
 $linkColor: $blue;
-$linkColorHover: lighten( $linkColor, 20% );
+$linkColorHover: color.adjust( $linkColor, $lightness: 20% );
 $selectionBackgroundColor: $magenta;
 
 // Background generator

@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /**
  * A simple theme for anna.js presentations, similar
  * to the default theme. The accent color is brown.
@@ -22,7 +24,7 @@ $headingTextShadow: none;
 $headingTextTransform: none;
 $backgroundColor: #F0F1EB;
 $linkColor: #51483D;
-$linkColorHover: lighten( $linkColor, 20% );
+$linkColorHover: color.adjust( $linkColor, $lightness: 20% );
 $selectionBackgroundColor: #26351C;
 
 .anna a {

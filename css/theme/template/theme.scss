@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Base theme template for anna.js
 
 /*********************************************
@@ -257,7 +259,7 @@ body {
 
 .anna .roll span:after {
 	color: #fff;
-	background: darken( $linkColor, 15% );
+	background: color.adjust( $linkColor, $lightness: -15% );
 }
 
 

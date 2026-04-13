@@ -44,7 +44,8 @@ body {
   visibility: inherit;
 }
 .anna .slides section .fragment.grow.visible {
-  transform: scale(1.3);
+  -webkit-transform: scale(1.3);
+          transform: scale(1.3);
 }
 
 .anna .slides section .fragment.shrink {
@@ -52,14 +53,17 @@ body {
   visibility: inherit;
 }
 .anna .slides section .fragment.shrink.visible {
-  transform: scale(0.7);
+  -webkit-transform: scale(0.7);
+          transform: scale(0.7);
 }
 
 .anna .slides section .fragment.zoom-in {
-  transform: scale(0.1);
+  -webkit-transform: scale(0.1);
+          transform: scale(0.1);
 }
 .anna .slides section .fragment.zoom-in.visible {
-  transform: none;
+  -webkit-transform: none;
+          transform: none;
 }
 
 .anna .slides section .fragment.fade-out {
@@ -89,31 +93,39 @@ body {
 }
 
 .anna .slides section .fragment.fade-up {
-  transform: translate(0, 20%);
+  -webkit-transform: translate(0, 20%);
+          transform: translate(0, 20%);
 }
 .anna .slides section .fragment.fade-up.visible {
-  transform: translate(0, 0);
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
 }
 
 .anna .slides section .fragment.fade-down {
-  transform: translate(0, -20%);
+  -webkit-transform: translate(0, -20%);
+          transform: translate(0, -20%);
 }
 .anna .slides section .fragment.fade-down.visible {
-  transform: translate(0, 0);
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
 }
 
 .anna .slides section .fragment.fade-right {
-  transform: translate(-20%, 0);
+  -webkit-transform: translate(-20%, 0);
+          transform: translate(-20%, 0);
 }
 .anna .slides section .fragment.fade-right.visible {
-  transform: translate(0, 0);
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
 }
 
 .anna .slides section .fragment.fade-left {
-  transform: translate(20%, 0);
+  -webkit-transform: translate(20%, 0);
+          transform: translate(20%, 0);
 }
 .anna .slides section .fragment.fade-left.visible {
-  transform: translate(0, 0);
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
 }
 
 .anna .slides section .fragment.fade-in-then-out,
@@ -206,26 +218,60 @@ body {
 /*********************************************
  * CONTROLS
  *********************************************/
-@keyframes bounce-right {
+@-webkit-keyframes bounce-right {
   0%, 10%, 25%, 40%, 50% {
-    transform: translateX(0);
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
   }
   20% {
-    transform: translateX(10px);
+    -webkit-transform: translateX(10px);
+            transform: translateX(10px);
   }
   30% {
-    transform: translateX(-5px);
+    -webkit-transform: translateX(-5px);
+            transform: translateX(-5px);
+  }
+}
+@keyframes bounce-right {
+  0%, 10%, 25%, 40%, 50% {
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+  20% {
+    -webkit-transform: translateX(10px);
+            transform: translateX(10px);
+  }
+  30% {
+    -webkit-transform: translateX(-5px);
+            transform: translateX(-5px);
+  }
+}
+@-webkit-keyframes bounce-down {
+  0%, 10%, 25%, 40%, 50% {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+  20% {
+    -webkit-transform: translateY(10px);
+            transform: translateY(10px);
+  }
+  30% {
+    -webkit-transform: translateY(-5px);
+            transform: translateY(-5px);
   }
 }
 @keyframes bounce-down {
   0%, 10%, 25%, 40%, 50% {
-    transform: translateY(0);
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
   }
   20% {
-    transform: translateY(10px);
+    -webkit-transform: translateY(10px);
+            transform: translateY(10px);
   }
   30% {
-    transform: translateY(-5px);
+    -webkit-transform: translateY(-5px);
+            transform: translateY(-5px);
   }
 }
 .anna .controls {
@@ -248,7 +294,9 @@ body {
   outline: 0;
   cursor: pointer;
   color: currentColor;
-  transform: scale(0.9999);
+  -webkit-transform: scale(0.9999);
+          transform: scale(0.9999);
+  transition: color 0.2s ease, opacity 0.2s ease, -webkit-transform 0.2s ease;
   transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
   z-index: 2;
   pointer-events: auto;
@@ -269,7 +317,8 @@ body {
   border-radius: 0.25em;
   background-color: currentColor;
   transition: all 0.15s ease, background-color 0.8s ease;
-  transform-origin: 0.2em 50%;
+  -webkit-transform-origin: 0.2em 50%;
+          transform-origin: 0.2em 50%;
   will-change: transform;
 }
 .anna .controls .controls-arrow {
@@ -278,57 +327,72 @@ body {
   height: 3.6em;
 }
 .anna .controls .controls-arrow:before {
-  transform: translateX(0.5em) translateY(1.55em) rotate(45deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(45deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(45deg);
 }
 .anna .controls .controls-arrow:after {
-  transform: translateX(0.5em) translateY(1.55em) rotate(-45deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(-45deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(-45deg);
 }
 .anna .controls .controls-arrow:hover:before {
-  transform: translateX(0.5em) translateY(1.55em) rotate(40deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(40deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(40deg);
 }
 .anna .controls .controls-arrow:hover:after {
-  transform: translateX(0.5em) translateY(1.55em) rotate(-40deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(-40deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(-40deg);
 }
 .anna .controls .controls-arrow:active:before {
-  transform: translateX(0.5em) translateY(1.55em) rotate(36deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(36deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(36deg);
 }
 .anna .controls .controls-arrow:active:after {
-  transform: translateX(0.5em) translateY(1.55em) rotate(-36deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(-36deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(-36deg);
 }
 .anna .controls .navigate-left {
   right: 6.4em;
   bottom: 3.2em;
-  transform: translateX(-10px);
+  -webkit-transform: translateX(-10px);
+          transform: translateX(-10px);
 }
 .anna .controls .navigate-right {
   right: 0;
   bottom: 3.2em;
-  transform: translateX(10px);
+  -webkit-transform: translateX(10px);
+          transform: translateX(10px);
 }
 .anna .controls .navigate-right .controls-arrow {
-  transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
 }
 .anna .controls .navigate-right.highlight {
-  animation: bounce-right 2s 50 both ease-out;
+  -webkit-animation: bounce-right 2s 50 both ease-out;
+          animation: bounce-right 2s 50 both ease-out;
 }
 .anna .controls .navigate-up {
   right: 3.2em;
   bottom: 6.4em;
-  transform: translateY(-10px);
+  -webkit-transform: translateY(-10px);
+          transform: translateY(-10px);
 }
 .anna .controls .navigate-up .controls-arrow {
-  transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
 }
 .anna .controls .navigate-down {
   right: 3.2em;
   bottom: 0;
-  transform: translateY(10px);
+  -webkit-transform: translateY(10px);
+          transform: translateY(10px);
 }
 .anna .controls .navigate-down .controls-arrow {
-  transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
+          transform: rotate(-90deg);
 }
 .anna .controls .navigate-down.highlight {
-  animation: bounce-down 2s 50 both ease-out;
+  -webkit-animation: bounce-down 2s 50 both ease-out;
+          animation: bounce-down 2s 50 both ease-out;
 }
 .anna .controls[data-controls-back-arrows=faded] .navigate-left.enabled, .anna .controls[data-controls-back-arrows=faded] .navigate-up.enabled {
   opacity: 0.3;
@@ -344,7 +408,8 @@ body {
   visibility: visible;
   opacity: 0.9;
   cursor: pointer;
-  transform: none;
+  -webkit-transform: none;
+          transform: none;
 }
 .anna .controls .enabled.fragmented {
   opacity: 0.5;
@@ -391,11 +456,13 @@ body {
 
 .anna.no-hover .controls .controls-arrow:hover:before,
 .anna.no-hover .controls .controls-arrow:active:before {
-  transform: translateX(0.5em) translateY(1.55em) rotate(45deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(45deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(45deg);
 }
 .anna.no-hover .controls .controls-arrow:hover:after,
 .anna.no-hover .controls .controls-arrow:active:after {
-  transform: translateX(0.5em) translateY(1.55em) rotate(-45deg);
+  -webkit-transform: translateX(0.5em) translateY(1.55em) rotate(-45deg);
+          transform: translateX(0.5em) translateY(1.55em) rotate(-45deg);
 }
 
 @media screen and (min-width: 500px) {
@@ -498,7 +565,8 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  touch-action: pinch-zoom;
+  -ms-touch-action: pinch-zoom;
+      touch-action: pinch-zoom;
 }
 
 .anna .slides {
@@ -514,12 +582,15 @@ body {
   overflow: visible;
   z-index: 1;
   text-align: center;
-  perspective: 600px;
-  perspective-origin: 50% 40%;
+  -webkit-perspective: 600px;
+          perspective: 600px;
+  -webkit-perspective-origin: 50% 40%;
+          perspective-origin: 50% 40%;
 }
 
 .anna .slides > section {
-  perspective: 600px;
+  -webkit-perspective: 600px;
+          perspective: 600px;
 }
 
 .anna .slides > section,
@@ -530,7 +601,9 @@ body {
   padding: 20px 0px;
   pointer-events: auto;
   z-index: 10;
-  transform-style: flat;
+  -webkit-transform-style: flat;
+          transform-style: flat;
+  transition: -webkit-transform-origin 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985), -webkit-transform 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985), visibility 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985), opacity 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
   transition: transform-origin 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985), transform 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985), visibility 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985), opacity 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
 }
 
@@ -607,59 +680,69 @@ body {
  * Aliased 'linear' for backwards compatibility
  *********************************************/
 .anna.slide section {
-  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
 }
 
 .anna .slides > section[data-transition=slide].past,
 .anna .slides > section[data-transition~=slide-out].past,
 .anna.slide .slides > section:not([data-transition]).past {
-  transform: translate(-150%, 0);
+  -webkit-transform: translate(-150%, 0);
+          transform: translate(-150%, 0);
 }
 
 .anna .slides > section[data-transition=slide].future,
 .anna .slides > section[data-transition~=slide-in].future,
 .anna.slide .slides > section:not([data-transition]).future {
-  transform: translate(150%, 0);
+  -webkit-transform: translate(150%, 0);
+          transform: translate(150%, 0);
 }
 
 .anna .slides > section > section[data-transition=slide].past,
 .anna .slides > section > section[data-transition~=slide-out].past,
 .anna.slide .slides > section > section:not([data-transition]).past {
-  transform: translate(0, -150%);
+  -webkit-transform: translate(0, -150%);
+          transform: translate(0, -150%);
 }
 
 .anna .slides > section > section[data-transition=slide].future,
 .anna .slides > section > section[data-transition~=slide-in].future,
 .anna.slide .slides > section > section:not([data-transition]).future {
-  transform: translate(0, 150%);
+  -webkit-transform: translate(0, 150%);
+          transform: translate(0, 150%);
 }
 
 .anna.linear section {
-  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
 }
 
 .anna .slides > section[data-transition=linear].past,
 .anna .slides > section[data-transition~=linear-out].past,
 .anna.linear .slides > section:not([data-transition]).past {
-  transform: translate(-150%, 0);
+  -webkit-transform: translate(-150%, 0);
+          transform: translate(-150%, 0);
 }
 
 .anna .slides > section[data-transition=linear].future,
 .anna .slides > section[data-transition~=linear-in].future,
 .anna.linear .slides > section:not([data-transition]).future {
-  transform: translate(150%, 0);
+  -webkit-transform: translate(150%, 0);
+          transform: translate(150%, 0);
 }
 
 .anna .slides > section > section[data-transition=linear].past,
 .anna .slides > section > section[data-transition~=linear-out].past,
 .anna.linear .slides > section > section:not([data-transition]).past {
-  transform: translate(0, -150%);
+  -webkit-transform: translate(0, -150%);
+          transform: translate(0, -150%);
 }
 
 .anna .slides > section > section[data-transition=linear].future,
 .anna .slides > section > section[data-transition~=linear-in].future,
 .anna.linear .slides > section > section:not([data-transition]).future {
-  transform: translate(0, 150%);
+  -webkit-transform: translate(0, 150%);
+          transform: translate(0, 150%);
 }
 
 /*********************************************
@@ -668,60 +751,70 @@ body {
  *********************************************/
 .anna .slides section[data-transition=default].stack,
 .anna.default .slides section.stack {
-  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
 }
 
 .anna .slides > section[data-transition=default].past,
 .anna .slides > section[data-transition~=default-out].past,
 .anna.default .slides > section:not([data-transition]).past {
-  transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
+          transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
 }
 
 .anna .slides > section[data-transition=default].future,
 .anna .slides > section[data-transition~=default-in].future,
 .anna.default .slides > section:not([data-transition]).future {
-  transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
 }
 
 .anna .slides > section > section[data-transition=default].past,
 .anna .slides > section > section[data-transition~=default-out].past,
 .anna.default .slides > section > section:not([data-transition]).past {
-  transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);
+  -webkit-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);
+          transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);
 }
 
 .anna .slides > section > section[data-transition=default].future,
 .anna .slides > section > section[data-transition~=default-in].future,
 .anna.default .slides > section > section:not([data-transition]).future {
-  transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);
+  -webkit-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);
+          transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);
 }
 
 .anna .slides section[data-transition=convex].stack,
 .anna.convex .slides section.stack {
-  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
 }
 
 .anna .slides > section[data-transition=convex].past,
 .anna .slides > section[data-transition~=convex-out].past,
 .anna.convex .slides > section:not([data-transition]).past {
-  transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
+          transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
 }
 
 .anna .slides > section[data-transition=convex].future,
 .anna .slides > section[data-transition~=convex-in].future,
 .anna.convex .slides > section:not([data-transition]).future {
-  transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
 }
 
 .anna .slides > section > section[data-transition=convex].past,
 .anna .slides > section > section[data-transition~=convex-out].past,
 .anna.convex .slides > section > section:not([data-transition]).past {
-  transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);
+  -webkit-transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);
+          transform: translate3d(0, -300px, 0) rotateX(70deg) translate3d(0, -300px, 0);
 }
 
 .anna .slides > section > section[data-transition=convex].future,
 .anna .slides > section > section[data-transition~=convex-in].future,
 .anna.convex .slides > section > section:not([data-transition]).future {
-  transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);
+  -webkit-transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);
+          transform: translate3d(0, 300px, 0) rotateX(-70deg) translate3d(0, 300px, 0);
 }
 
 /*********************************************
@@ -729,31 +822,36 @@ body {
  *********************************************/
 .anna .slides section[data-transition=concave].stack,
 .anna.concave .slides section.stack {
-  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
 }
 
 .anna .slides > section[data-transition=concave].past,
 .anna .slides > section[data-transition~=concave-out].past,
 .anna.concave .slides > section:not([data-transition]).past {
-  transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);
+          transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);
 }
 
 .anna .slides > section[data-transition=concave].future,
 .anna .slides > section[data-transition~=concave-in].future,
 .anna.concave .slides > section:not([data-transition]).future {
-  transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);
 }
 
 .anna .slides > section > section[data-transition=concave].past,
 .anna .slides > section > section[data-transition~=concave-out].past,
 .anna.concave .slides > section > section:not([data-transition]).past {
-  transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);
+  -webkit-transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);
+          transform: translate3d(0, -80%, 0) rotateX(-70deg) translate3d(0, -80%, 0);
 }
 
 .anna .slides > section > section[data-transition=concave].future,
 .anna .slides > section > section[data-transition~=concave-in].future,
 .anna.concave .slides > section > section:not([data-transition]).future {
-  transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);
+  -webkit-transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);
+          transform: translate3d(0, 80%, 0) rotateX(70deg) translate3d(0, 80%, 0);
 }
 
 /*********************************************
@@ -768,26 +866,30 @@ body {
 .anna .slides > section[data-transition~=zoom-out].past,
 .anna.zoom .slides > section:not([data-transition]).past {
   visibility: hidden;
-  transform: scale(16);
+  -webkit-transform: scale(16);
+          transform: scale(16);
 }
 
 .anna .slides > section[data-transition=zoom].future,
 .anna .slides > section[data-transition~=zoom-in].future,
 .anna.zoom .slides > section:not([data-transition]).future {
   visibility: hidden;
-  transform: scale(0.2);
+  -webkit-transform: scale(0.2);
+          transform: scale(0.2);
 }
 
 .anna .slides > section > section[data-transition=zoom].past,
 .anna .slides > section > section[data-transition~=zoom-out].past,
 .anna.zoom .slides > section > section:not([data-transition]).past {
-  transform: scale(16);
+  -webkit-transform: scale(16);
+          transform: scale(16);
 }
 
 .anna .slides > section > section[data-transition=zoom].future,
 .anna .slides > section > section[data-transition~=zoom-in].future,
 .anna.zoom .slides > section > section:not([data-transition]).future {
-  transform: scale(0.2);
+  -webkit-transform: scale(0.2);
+          transform: scale(0.2);
 }
 
 /*********************************************
@@ -798,15 +900,18 @@ body {
  * future version.
  *********************************************/
 .anna.cube .slides {
-  perspective: 1300px;
+  -webkit-perspective: 1300px;
+          perspective: 1300px;
 }
 
 .anna.cube .slides section {
   padding: 30px;
   min-height: 700px;
-  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
   box-sizing: border-box;
-  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
 }
 
 .anna.center.cube .slides section {
@@ -823,7 +928,8 @@ body {
   top: 0;
   background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  transform: translateZ(-20px);
+  -webkit-transform: translateZ(-20px);
+          transform: translateZ(-20px);
 }
 
 .anna.cube .slides section:not(.stack):after {
@@ -838,7 +944,8 @@ body {
   z-index: 1;
   border-radius: 4px;
   box-shadow: 0px 95px 25px rgba(0, 0, 0, 0.2);
-  transform: translateZ(-90px) rotateX(65deg);
+  -webkit-transform: translateZ(-90px) rotateX(65deg);
+          transform: translateZ(-90px) rotateX(65deg);
 }
 
 .anna.cube .slides > section.stack {
@@ -847,23 +954,31 @@ body {
 }
 
 .anna.cube .slides > section.past {
-  transform-origin: 100% 0%;
-  transform: translate3d(-100%, 0, 0) rotateY(-90deg);
+  -webkit-transform-origin: 100% 0%;
+          transform-origin: 100% 0%;
+  -webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg);
+          transform: translate3d(-100%, 0, 0) rotateY(-90deg);
 }
 
 .anna.cube .slides > section.future {
-  transform-origin: 0% 0%;
-  transform: translate3d(100%, 0, 0) rotateY(90deg);
+  -webkit-transform-origin: 0% 0%;
+          transform-origin: 0% 0%;
+  -webkit-transform: translate3d(100%, 0, 0) rotateY(90deg);
+          transform: translate3d(100%, 0, 0) rotateY(90deg);
 }
 
 .anna.cube .slides > section > section.past {
-  transform-origin: 0% 100%;
-  transform: translate3d(0, -100%, 0) rotateX(90deg);
+  -webkit-transform-origin: 0% 100%;
+          transform-origin: 0% 100%;
+  -webkit-transform: translate3d(0, -100%, 0) rotateX(90deg);
+          transform: translate3d(0, -100%, 0) rotateX(90deg);
 }
 
 .anna.cube .slides > section > section.future {
-  transform-origin: 0% 0%;
-  transform: translate3d(0, 100%, 0) rotateX(-90deg);
+  -webkit-transform-origin: 0% 0%;
+          transform-origin: 0% 0%;
+  -webkit-transform: translate3d(0, 100%, 0) rotateX(-90deg);
+          transform: translate3d(0, 100%, 0) rotateX(-90deg);
 }
 
 /*********************************************
@@ -874,15 +989,18 @@ body {
  * future version.
  *********************************************/
 .anna.page .slides {
-  perspective-origin: 0% 50%;
-  perspective: 3000px;
+  -webkit-perspective-origin: 0% 50%;
+          perspective-origin: 0% 50%;
+  -webkit-perspective: 3000px;
+          perspective: 3000px;
 }
 
 .anna.page .slides section {
   padding: 30px;
   min-height: 700px;
   box-sizing: border-box;
-  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
 }
 
 .anna.page .slides section.past {
@@ -898,7 +1016,8 @@ body {
   left: 0;
   top: 0;
   background: rgba(0, 0, 0, 0.1);
-  transform: translateZ(-20px);
+  -webkit-transform: translateZ(-20px);
+          transform: translateZ(-20px);
 }
 
 .anna.page .slides section:not(.stack):after {
@@ -922,23 +1041,31 @@ body {
 }
 
 .anna.page .slides > section.past {
-  transform-origin: 0% 0%;
-  transform: translate3d(-40%, 0, 0) rotateY(-80deg);
+  -webkit-transform-origin: 0% 0%;
+          transform-origin: 0% 0%;
+  -webkit-transform: translate3d(-40%, 0, 0) rotateY(-80deg);
+          transform: translate3d(-40%, 0, 0) rotateY(-80deg);
 }
 
 .anna.page .slides > section.future {
-  transform-origin: 100% 0%;
-  transform: translate3d(0, 0, 0);
+  -webkit-transform-origin: 100% 0%;
+          transform-origin: 100% 0%;
+  -webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
 }
 
 .anna.page .slides > section > section.past {
-  transform-origin: 0% 0%;
-  transform: translate3d(0, -40%, 0) rotateX(80deg);
+  -webkit-transform-origin: 0% 0%;
+          transform-origin: 0% 0%;
+  -webkit-transform: translate3d(0, -40%, 0) rotateX(80deg);
+          transform: translate3d(0, -40%, 0) rotateX(80deg);
 }
 
 .anna.page .slides > section > section.future {
-  transform-origin: 0% 100%;
-  transform: translate3d(0, 0, 0);
+  -webkit-transform-origin: 0% 100%;
+          transform-origin: 0% 100%;
+  -webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
 }
 
 /*********************************************
@@ -947,7 +1074,8 @@ body {
 .anna .slides section[data-transition=fade],
 .anna.fade .slides section:not([data-transition]),
 .anna.fade .slides > section > section:not([data-transition]) {
-  transform: none;
+  -webkit-transform: none;
+          transform: none;
   transition: opacity 0.5s;
 }
 
@@ -961,7 +1089,8 @@ body {
  *********************************************/
 .anna .slides section[data-transition=none],
 .anna.none .slides section:not([data-transition]) {
-  transform: none;
+  -webkit-transform: none;
+          transform: none;
   transition: none;
 }
 
@@ -1039,7 +1168,8 @@ body {
   left: 0;
   margin: 10vh 0;
   margin: 70px 0;
-  transform: none;
+  -webkit-transform: none;
+          transform: none;
 }
 
 .anna .no-transition,
@@ -1056,7 +1186,8 @@ body {
   height: 100%;
   top: 0;
   left: 0;
-  perspective: 600px;
+  -webkit-perspective: 600px;
+          perspective: 600px;
 }
 
 .anna .slide-background {
@@ -1104,11 +1235,13 @@ body {
   max-height: none;
   top: 0;
   left: 0;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 .anna .slide-background[data-background-size=contain] video {
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
 }
 
 /* Immediate transition style */
@@ -1121,77 +1254,90 @@ body {
 .anna[data-background-transition=slide] > .backgrounds .slide-background,
 .anna > .backgrounds .slide-background[data-background-transition=slide] {
   opacity: 1;
-  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
 }
 
 .anna[data-background-transition=slide] > .backgrounds .slide-background.past,
 .anna > .backgrounds .slide-background.past[data-background-transition=slide] {
-  transform: translate(-100%, 0);
+  -webkit-transform: translate(-100%, 0);
+          transform: translate(-100%, 0);
 }
 
 .anna[data-background-transition=slide] > .backgrounds .slide-background.future,
 .anna > .backgrounds .slide-background.future[data-background-transition=slide] {
-  transform: translate(100%, 0);
+  -webkit-transform: translate(100%, 0);
+          transform: translate(100%, 0);
 }
 
 .anna[data-background-transition=slide] > .backgrounds .slide-background > .slide-background.past,
 .anna > .backgrounds .slide-background > .slide-background.past[data-background-transition=slide] {
-  transform: translate(0, -100%);
+  -webkit-transform: translate(0, -100%);
+          transform: translate(0, -100%);
 }
 
 .anna[data-background-transition=slide] > .backgrounds .slide-background > .slide-background.future,
 .anna > .backgrounds .slide-background > .slide-background.future[data-background-transition=slide] {
-  transform: translate(0, 100%);
+  -webkit-transform: translate(0, 100%);
+          transform: translate(0, 100%);
 }
 
 /* Convex */
 .anna[data-background-transition=convex] > .backgrounds .slide-background.past,
 .anna > .backgrounds .slide-background.past[data-background-transition=convex] {
   opacity: 0;
-  transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
+          transform: translate3d(-100%, 0, 0) rotateY(-90deg) translate3d(-100%, 0, 0);
 }
 
 .anna[data-background-transition=convex] > .backgrounds .slide-background.future,
 .anna > .backgrounds .slide-background.future[data-background-transition=convex] {
   opacity: 0;
-  transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0) rotateY(90deg) translate3d(100%, 0, 0);
 }
 
 .anna[data-background-transition=convex] > .backgrounds .slide-background > .slide-background.past,
 .anna > .backgrounds .slide-background > .slide-background.past[data-background-transition=convex] {
   opacity: 0;
-  transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);
+  -webkit-transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);
+          transform: translate3d(0, -100%, 0) rotateX(90deg) translate3d(0, -100%, 0);
 }
 
 .anna[data-background-transition=convex] > .backgrounds .slide-background > .slide-background.future,
 .anna > .backgrounds .slide-background > .slide-background.future[data-background-transition=convex] {
   opacity: 0;
-  transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);
+  -webkit-transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);
+          transform: translate3d(0, 100%, 0) rotateX(-90deg) translate3d(0, 100%, 0);
 }
 
 /* Concave */
 .anna[data-background-transition=concave] > .backgrounds .slide-background.past,
 .anna > .backgrounds .slide-background.past[data-background-transition=concave] {
   opacity: 0;
-  transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);
+  -webkit-transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);
+          transform: translate3d(-100%, 0, 0) rotateY(90deg) translate3d(-100%, 0, 0);
 }
 
 .anna[data-background-transition=concave] > .backgrounds .slide-background.future,
 .anna > .backgrounds .slide-background.future[data-background-transition=concave] {
   opacity: 0;
-  transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0) rotateY(-90deg) translate3d(100%, 0, 0);
 }
 
 .anna[data-background-transition=concave] > .backgrounds .slide-background > .slide-background.past,
 .anna > .backgrounds .slide-background > .slide-background.past[data-background-transition=concave] {
   opacity: 0;
-  transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);
+  -webkit-transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);
+          transform: translate3d(0, -100%, 0) rotateX(-90deg) translate3d(0, -100%, 0);
 }
 
 .anna[data-background-transition=concave] > .backgrounds .slide-background > .slide-background.future,
 .anna > .backgrounds .slide-background > .slide-background.future[data-background-transition=concave] {
   opacity: 0;
-  transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);
+  -webkit-transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);
+          transform: translate3d(0, 100%, 0) rotateX(90deg) translate3d(0, 100%, 0);
 }
 
 /* Zoom */
@@ -1204,28 +1350,32 @@ body {
 .anna > .backgrounds .slide-background.past[data-background-transition=zoom] {
   opacity: 0;
   visibility: hidden;
-  transform: scale(16);
+  -webkit-transform: scale(16);
+          transform: scale(16);
 }
 
 .anna[data-background-transition=zoom] > .backgrounds .slide-background.future,
 .anna > .backgrounds .slide-background.future[data-background-transition=zoom] {
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.2);
+  -webkit-transform: scale(0.2);
+          transform: scale(0.2);
 }
 
 .anna[data-background-transition=zoom] > .backgrounds .slide-background > .slide-background.past,
 .anna > .backgrounds .slide-background > .slide-background.past[data-background-transition=zoom] {
   opacity: 0;
   visibility: hidden;
-  transform: scale(16);
+  -webkit-transform: scale(16);
+          transform: scale(16);
 }
 
 .anna[data-background-transition=zoom] > .backgrounds .slide-background > .slide-background.future,
 .anna > .backgrounds .slide-background > .slide-background.future[data-background-transition=zoom] {
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.2);
+  -webkit-transform: scale(0.2);
+          transform: scale(0.2);
 }
 
 /* Global transition speed settings */
@@ -1241,8 +1391,10 @@ body {
  * OVERVIEW
  *********************************************/
 .anna.overview {
-  perspective-origin: 50% 50%;
-  perspective: 700px;
+  -webkit-perspective-origin: 50% 50%;
+          perspective-origin: 50% 50%;
+  -webkit-perspective: 700px;
+          perspective: 700px;
 }
 .anna.overview .slides {
   -moz-transform-style: preserve-3d;
@@ -1277,7 +1429,8 @@ body {
   overflow: visible;
 }
 .anna.overview .backgrounds {
-  perspective: inherit;
+  -webkit-perspective: inherit;
+          perspective: inherit;
   -moz-transform-style: preserve-3d;
 }
 .anna.overview .backgrounds .slide-background {
@@ -1424,6 +1577,8 @@ body {
 
 .anna > .overlay .viewport {
   position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   top: 40px;
   right: 0;
@@ -1469,7 +1624,8 @@ body {
 .anna > .overlay.overlay-preview.loaded .spinner {
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.2);
+  -webkit-transform: scale(0.2);
+          transform: scale(0.2);
 }
 
 .anna > .overlay.overlay-help .viewport {
@@ -1558,8 +1714,10 @@ body {
   line-height: 1.2;
   overflow: hidden;
   vertical-align: top;
-  perspective: 400px;
-  perspective-origin: 50% 50%;
+  -webkit-perspective: 400px;
+          perspective: 400px;
+  -webkit-perspective-origin: 50% 50%;
+          perspective-origin: 50% 50%;
 }
 
 .anna .roll:hover {
@@ -1573,14 +1731,18 @@ body {
   padding: 0 2px;
   pointer-events: none;
   transition: all 400ms ease;
-  transform-origin: 50% 0%;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
+  -webkit-transform-origin: 50% 0%;
+          transform-origin: 50% 0%;
+  -webkit-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
 }
 
 .anna .roll:hover span {
   background: rgba(0, 0, 0, 0.5);
-  transform: translate3d(0px, 0px, -45px) rotateX(90deg);
+  -webkit-transform: translate3d(0px, 0px, -45px) rotateX(90deg);
+          transform: translate3d(0px, 0px, -45px) rotateX(90deg);
 }
 
 .anna .roll span:after {
@@ -1590,9 +1752,12 @@ body {
   left: 0;
   top: 0;
   padding: 0 2px;
-  backface-visibility: hidden;
-  transform-origin: 50% 0%;
-  transform: translate3d(0px, 110%, 0px) rotateX(-90deg);
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+  -webkit-transform-origin: 50% 0%;
+          transform-origin: 50% 0%;
+  -webkit-transform: translate3d(0px, 110%, 0px) rotateX(-90deg);
+          transform: translate3d(0px, 110%, 0px) rotateX(-90deg);
 }
 
 /*********************************************
@@ -1605,7 +1770,7 @@ body {
 .anna .speaker-notes {
   display: none;
   position: absolute;
-  width: 33.3333333333%;
+  width: calc(33.3333333333% * 1%);
   height: 100%;
   top: 0;
   left: 100%;
@@ -1687,7 +1852,8 @@ body {
 .zoomed .anna *,
 .zoomed .anna *:before,
 .zoomed .anna *:after {
-  backface-visibility: visible !important;
+  -webkit-backface-visibility: visible !important;
+          backface-visibility: visible !important;
 }
 
 .zoomed .anna .progress,
@@ -1702,5 +1868,3 @@ body {
 .zoomed .anna .roll span:after {
   visibility: hidden;
 }
-
-/*# sourceMappingURL=anna.css.map */

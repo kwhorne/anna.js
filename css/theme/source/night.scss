@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /**
  * Black theme for anna.js.
  *
@@ -21,7 +23,7 @@ $backgroundColor: #111;
 
 $mainFont: 'Open Sans', sans-serif;
 $linkColor: #e7ad52;
-$linkColorHover: lighten( $linkColor, 20% );
+$linkColorHover: color.adjust( $linkColor, $lightness: 20% );
 $headingFont: 'Montserrat', Impact, sans-serif;
 $headingTextShadow: none;
 $headingLetterSpacing: -0.03em;
