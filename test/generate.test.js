@@ -4,11 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const CLI = path.join(__dirname, '..', 'cli', 'generate.js');
+const CLI = path.join(__dirname, '..', 'cli', 'anna.js');
 const TMP = path.join(__dirname, 'tmp');
 
 function generate(inputFile, outputFile) {
-	execFileSync('node', [CLI, inputFile, outputFile], { encoding: 'utf-8' });
+	execFileSync('node', [CLI, 'generate', inputFile, outputFile], { encoding: 'utf-8' });
 	return fs.readFileSync(outputFile, 'utf-8');
 }
 
@@ -60,7 +60,6 @@ describe('anna generate', () => {
 		const input = writeMd('vertical.md', md);
 		const html = generate(input, path.join(TMP, 'vertical.html'));
 
-		// Outer section wrapping vertical stack
 		assert.match(html, /<section>\n\t+<section>/);
 		assert.match(html, /<h2>Sub 1<\/h2>/);
 		assert.match(html, /<h2>Sub 2<\/h2>/);
@@ -103,6 +102,22 @@ describe('anna generate', () => {
 		assert.match(html, /data-background="#ff0000"/);
 	});
 
+	it('supports background images via slide attributes', () => {
+		const md = '---\ntitle: BG\n---\n\n<!-- .slide: data-background-image="photo.jpg" -->\n\n# Photo\n';
+		const input = writeMd('bgimg.md', md);
+		const html = generate(input, path.join(TMP, 'bgimg.html'));
+
+		assert.match(html, /data-background-image="photo.jpg"/);
+	});
+
+	it('renders markdown images', () => {
+		const md = '---\ntitle: Img\n---\n\n![Alt text](image.png)\n';
+		const input = writeMd('image.md', md);
+		const html = generate(input, path.join(TMP, 'image.html'));
+
+		assert.match(html, /<img src="image.png" alt="Alt text">/);
+	});
+
 	it('sets author meta tag when provided', () => {
 		const md = '---\ntitle: Auth\nauthor: Knut\n---\n\n# Hi\n';
 		const input = writeMd('author.md', md);
@@ -120,17 +135,66 @@ describe('anna generate', () => {
 	});
 
 	it('shows help with --help flag', () => {
-		const output = execFileSync('node', [CLI, '--help'], { encoding: 'utf-8' });
+		const output = execFileSync('node', [CLI, 'generate', '--help'], { encoding: 'utf-8' });
 		assert.match(output, /Anna\.js Markdown Generator/);
 		assert.match(output, /--watch/);
 	});
 
 	it('exits with error for missing file', () => {
 		assert.throws(() => {
-			execFileSync('node', [CLI, '/nonexistent/file.md'], {
+			execFileSync('node', [CLI, 'generate', '/nonexistent/file.md'], {
 				encoding: 'utf-8',
 				stdio: 'pipe'
 			});
 		});
+	});
+});
+
+describe('anna cli', () => {
+	it('shows help with --help', () => {
+		const output = execFileSync('node', [CLI, '--help'], { encoding: 'utf-8' });
+		assert.match(output, /Anna\.js/);
+		assert.match(output, /init/);
+		assert.match(output, /generate/);
+		assert.match(output, /export/);
+	});
+
+	it('shows version with --version', () => {
+		const output = execFileSync('node', [CLI, '--version'], { encoding: 'utf-8' });
+		assert.match(output, /\d+\.\d+\.\d+/);
+	});
+
+	it('treats .md file as generate shorthand', () => {
+		const tmpDir = path.join(__dirname, 'tmp-shorthand');
+		fs.mkdirSync(tmpDir, { recursive: true });
+		const input = path.join(tmpDir, 'test.md');
+		fs.writeFileSync(input, '---\ntitle: Short\n---\n\n# Test\n');
+
+		execFileSync('node', [CLI, input], { encoding: 'utf-8' });
+		const html = fs.readFileSync(path.join(tmpDir, 'test.html'), 'utf-8');
+
+		assert.match(html, /<title>Short<\/title>/);
+		fs.rmSync(tmpDir, { recursive: true, force: true });
+	});
+});
+
+describe('anna init', () => {
+	const INIT_DIR = path.join(__dirname, 'tmp-init');
+
+	after(() => {
+		fs.rmSync(INIT_DIR, { recursive: true, force: true });
+	});
+
+	it('scaffolds a new project directory', () => {
+		execFileSync('node', [CLI, 'init', INIT_DIR], { encoding: 'utf-8' });
+
+		assert.ok(fs.existsSync(path.join(INIT_DIR, 'slides.md')));
+		assert.ok(fs.existsSync(path.join(INIT_DIR, 'slides.html')));
+		assert.ok(fs.existsSync(path.join(INIT_DIR, 'css', 'anna.css')));
+		assert.ok(fs.existsSync(path.join(INIT_DIR, 'js', 'anna.js')));
+		assert.ok(fs.existsSync(path.join(INIT_DIR, 'plugin', 'highlight', 'highlight.js')));
+
+		const html = fs.readFileSync(path.join(INIT_DIR, 'slides.html'), 'utf-8');
+		assert.match(html, /Anna\.initialize/);
 	});
 });

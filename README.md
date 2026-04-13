@@ -1,16 +1,34 @@
 # Anna.js
 
-Et presentasjonsrammeverk for web. Skriv slides i Markdown eller HTML, velg blant 12 temaer, og presenter direkte i nettleseren.
+Et presentasjonsrammeverk for web. Skriv slides i Markdown, velg blant 12 temaer, og presenter direkte i nettleseren.
+
+## Installasjon
+
+```bash
+npm install -g anna.js
+```
+
+Eller bruk direkte med `npx`:
+
+```bash
+npx anna init my-presentation
+```
 
 ## Kom i gang
 
 ```bash
-npm install
+# Opprett nytt prosjekt med alle filer
+anna init my-presentation
+
+# Eller bare generer fra en .md-fil
+anna generate slides.md
+anna generate slides.md --watch
+
+# Eksporter til PDF (krever puppeteer)
+anna export slides.md
 ```
 
-### Markdown (anbefalt)
-
-Skriv presentasjonen i en `.md`-fil:
+## Markdown-format
 
 ```markdown
 ---
@@ -36,68 +54,65 @@ Første slide
 
 ### Vertikal sub-slide
 
-Bruk `--` for vertikale slides
+---
+
+![Bilde](foto.jpg)
+
+---
+
+<!-- .slide: data-background-image="hero.jpg" -->
+
+## Fullskjerm-bakgrunn
 
 ---
 
 # Takk!
 ```
 
-Generer og åpne i nettleseren:
-
-```bash
-npx anna generate presentasjon.md
-npx anna generate presentasjon.md --watch   # regenerer ved endringer
-```
-
-### HTML
-
-Rediger `index.html` direkte og åpne i nettleseren, eller start utviklingsserveren:
-
-```bash
-npm start
-```
-
-## Markdown-format
+## Syntaks
 
 | Syntaks | Funksjon |
 |---|---|
 | `---` | Horisontal slide-separator |
 | `--` | Vertikal slide-separator |
-| `<!-- .fragments -->` | Animerer hvert listepunkt ett om gangen |
-| `<!-- .fragment -->` | Gjør foregående paragraf til fragment |
-| `<!-- .slide: data-background="#hex" -->` | Slide-attributter (bakgrunn, transition, etc.) |
-| `Note:` | Speaker notes (synlig kun for presentatør med **S**) |
+| `<!-- .fragments -->` | Animerer hvert listepunkt |
+| `<!-- .fragment -->` | Gjør paragraf til fragment |
+| `<!-- .slide: data-background="#hex" -->` | Bakgrunnsfarge |
+| `<!-- .slide: data-background-image="img.jpg" -->` | Bakgrunnsbilde |
+| `![alt](bilde.jpg)` | Bilde (auto-skalert til slide) |
+| `Note:` | Speaker notes (synlig med **S**) |
 
-### Frontmatter-opsjoner
+## Frontmatter
 
 ```yaml
 ---
-title: Presentasjonstittel
+title: Tittel
 author: Navn
-theme: moon            # standard: league
-transition: slide      # slide, fade, convex, concave, zoom, none
-controls: true         # vis navigasjonspiler
-progress: true         # vis fremdriftslinje
-center: true           # sentrer innhold
-hash: true             # URL-hashing per slide
-autoSlide: 0           # auto-avansering i ms (0 = av)
-loop: false            # loop tilbake til start
+theme: league        # 12 temaer tilgjengelig
+transition: slide    # slide, fade, convex, concave, zoom, none
+controls: true
+progress: true
+center: true
+hash: true
+autoSlide: 0
+loop: false
 ---
+```
+
+## CLI-kommandoer
+
+```bash
+anna init [name]              # Opprett nytt prosjekt
+anna generate <file.md>       # Generer HTML fra Markdown
+anna generate <file.md> -w    # Watch-modus
+anna export <file.md>         # Eksporter til PDF
+anna --help                   # Vis hjelp
 ```
 
 ## Temaer
 
-Anna.js kommer med 12 innebygde temaer:
-
 **Mørke:** black, night, moon, blood, league (standard)
 **Lyse:** white, beige, sky, serif, simple, solarized
-
-I Markdown — sett `theme` i frontmatter. I HTML:
-
-```html
-<link rel="stylesheet" href="css/theme/moon.css">
-```
 
 ## Keyboard shortcuts
 
@@ -114,30 +129,15 @@ I Markdown — sett `theme` i frontmatter. I HTML:
 ## Utvikling
 
 ```bash
+npm install
 npm run build          # kompiler SCSS + minifiser CSS/JS
 npm start              # utviklingsserver med livereload
-npm run lint           # ESLint-sjekk
-npm run generate -- slides.md   # generer presentasjon fra markdown
+npm test               # lint + tester
 ```
-
-### Byggesystem
-
-- **Dart Sass** — SCSS-kompilering
-- **PostCSS + Autoprefixer** — vendor-prefikser
-- **clean-css** — CSS-minifisering
-- **Terser** — JS-minifisering
-- **ESLint** — kodekvalitet
-- **BrowserSync** — utviklingsserver
 
 ## Plugins
 
-- **markdown** — Markdown i HTML-slides
-- **highlight** — Syntax highlighting for kodeblokker
-- **notes** — Speaker notes
-- **math** — LaTeX-formler
-- **search** — Søk i slides
-- **zoom** — Zoom inn på elementer
-- **multiplex** — Synkroniser presentasjon til publikum
+markdown, highlight, notes, math, search, zoom, multiplex
 
 ## Lisens
 

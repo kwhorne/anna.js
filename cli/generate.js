@@ -1,12 +1,5 @@
-#!/usr/bin/env node
-
 /**
  * Anna.js Markdown-to-Presentation Generator
- *
- * Converts a single Markdown file into a complete Anna.js presentation.
- *
- * Usage:
- *   node cli/generate.js input.md [output.html]
  *
  * Markdown format:
  *   - YAML frontmatter for configuration (theme, transition, title, etc.)
@@ -15,6 +8,7 @@
  *   - `Note:` starts speaker notes (until end of slide)
  *   - `<!-- .slide: data-background="#hex" -->` for per-slide attributes
  *   - `<!-- .fragments -->` before a list to animate items one by one
+ *   - `![alt](image.jpg)` for images (auto-sized to fit slides)
  */
 
 const fs = require('fs');
@@ -22,12 +16,11 @@ const path = require('path');
 const matter = require('gray-matter');
 const { marked } = require('marked');
 
-// --- CLI ---
+// --- Public API ---
 
-const args = process.argv.slice(2);
-
-if (args.includes('--help') || args.includes('-h') || args.length === 0) {
-	console.log(`
+function run(args) {
+	if (args.includes('--help') || args.includes('-h') || args.length === 0) {
+		console.log(`
   Anna.js Markdown Generator
 
   Usage:
@@ -48,6 +41,7 @@ if (args.includes('--help') || args.includes('-h') || args.length === 0) {
 
   Slide attributes:
     <!-- .slide: data-background="#4d7e65" -->
+    <!-- .slide: data-background-image="img.jpg" -->
 
   Frontmatter options:
     title          Presentation title
@@ -57,42 +51,64 @@ if (args.includes('--help') || args.includes('-h') || args.length === 0) {
     progress       Show progress bar (default: true)
     center         Center slide content (default: true)
     hash           Enable URL hashing (default: true)
-	`);
-	process.exit(0);
+		`);
+		process.exit(0);
+	}
+
+	const watchMode = args.includes('--watch') || args.includes('-w');
+	const fileArgs = args.filter(a => !a.startsWith('-'));
+	const inputFile = fileArgs[0];
+	const outputFile = fileArgs[1] || inputFile.replace(/\.md$/, '.html');
+
+	if (!fs.existsSync(inputFile)) {
+		console.error(`  Error: File not found: ${inputFile}`);
+		process.exit(1);
+	}
+
+	const annaRoot = resolveAnnaRoot(outputFile);
+
+	function doBuild() {
+		const html = build(inputFile, { annaRoot });
+		fs.writeFileSync(outputFile, html, 'utf-8');
+		console.log(`  \u2713 ${inputFile} \u2192 ${outputFile}`);
+	}
+
+	doBuild();
+
+	if (watchMode) {
+		console.log(`  Watching ${inputFile} for changes...`);
+		let timeout;
+		fs.watch(inputFile, () => {
+			clearTimeout(timeout);
+			timeout = setTimeout(() => {
+				try { doBuild(); }
+				catch (e) { console.error(`  Error: ${e.message}`); }
+			}, 100);
+		});
+	}
 }
 
-const watchMode = args.includes('--watch') || args.includes('-w');
-const fileArgs = args.filter(a => !a.startsWith('-'));
-const inputFile = fileArgs[0];
-const outputFile = fileArgs[1] || inputFile.replace(/\.md$/, '.html');
-
-if (!fs.existsSync(inputFile)) {
-	console.error(`Error: File not found: ${inputFile}`);
-	process.exit(1);
-}
-
-// Resolve the relative path from output file to anna.js root
-const annaRoot = path.relative(
-	path.dirname(path.resolve(outputFile)),
-	path.resolve(__dirname, '..')
-);
-
-function build() {
+/**
+ * Build HTML from a markdown file. Returns the HTML string.
+ */
+function build(inputFile, opts = {}) {
+	const annaRoot = opts.annaRoot || resolveAnnaRoot(inputFile.replace(/\.md$/, '.html'));
 	const raw = fs.readFileSync(inputFile, 'utf-8');
 	const { data: config, content } = matter(raw);
 	const slides = parseSlides(content);
-	const html = generateHTML(slides, config);
+	return generateHTML(slides, config, annaRoot);
+}
 
-	fs.writeFileSync(outputFile, html, 'utf-8');
-	console.log(`  \u2713 ${inputFile} \u2192 ${outputFile}`);
+function resolveAnnaRoot(outputFile) {
+	const rel = path.relative(
+		path.dirname(path.resolve(outputFile)),
+		path.resolve(__dirname, '..')
+	);
+	return rel === '' ? '.' : rel;
 }
 
 // --- Parser ---
 
-/**
- * Protect fenced code blocks from being split by slide separators.
- * Replaces code blocks with placeholders, returns a restore function.
- */
 function protectCodeBlocks(text) {
 	const blocks = [];
 	const protected_ = text.replace(/```[\s\S]*?```/g, match => {
@@ -106,11 +122,9 @@ function protectCodeBlocks(text) {
 function parseSlides(content) {
 	const { text, restore } = protectCodeBlocks(content);
 
-	// Split by horizontal separator: `---` on its own line
 	const horizontalSections = text.split(/\n---\n/);
 
 	return horizontalSections.map(section => {
-		// Split by vertical separator: `--` on its own line
 		const verticalParts = section.split(/\n--\n/);
 
 		if (verticalParts.length === 1) {
@@ -142,8 +156,7 @@ function parseSlide(md) {
 		slide.notes = marked(noteParts[1].trim());
 	}
 
-	// Process <!-- .fragments --> directive:
-	// Makes each <li> in the following list a fragment
+	// Process <!-- .fragments --> directive
 	let processed = slideMarkdown.replace(
 		/<!--\s*\.fragments(?:\s+([\w-]+))?\s*-->\n([\s\S]*?)(?=\n\n|$)/g,
 		(_, effect, listBlock) => {
@@ -158,7 +171,6 @@ function parseSlide(md) {
 		/^(.+)\n<!--\s*\.fragment(?:\s+([\w-]+))?\s*-->/gm,
 		(_, line, effect) => {
 			const cls = effect ? `fragment ${effect}` : 'fragment';
-			// Wrap in a div that marked won't interfere with
 			return `<p class="${cls}">${line.trim()}</p>`;
 		}
 	);
@@ -170,7 +182,7 @@ function parseSlide(md) {
 
 // --- HTML Generation ---
 
-function generateHTML(slides, config) {
+function generateHTML(slides, config, annaRoot) {
 	const theme = config.theme || 'league';
 	const transition = config.transition || 'slide';
 	const title = config.title || 'Anna.js Presentation';
@@ -195,7 +207,7 @@ function generateHTML(slides, config) {
 		return renderSlide(slide);
 	}).join('\n\n');
 
-	const p = annaRoot === '' ? '.' : annaRoot;
+	const p = annaRoot;
 
 	return `<!doctype html>
 <html>
@@ -253,21 +265,6 @@ function esc(str) {
 		.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// --- Run ---
+// --- Exports ---
 
-build();
-
-if (watchMode) {
-	console.log(`  Watching ${inputFile} for changes...`);
-	let timeout;
-	fs.watch(inputFile, () => {
-		clearTimeout(timeout);
-		timeout = setTimeout(() => {
-			try {
-				build();
-			} catch (e) {
-				console.error(`  Error: ${e.message}`);
-			}
-		}, 100);
-	});
-}
+module.exports = { run, build };

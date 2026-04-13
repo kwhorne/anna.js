@@ -1,13 +1,19 @@
 {
   "name": "anna.js",
   "version": "1.0.0",
-  "description": "Anna - The HTML Presentation Framework",
-  "homepage": "https://kwhorne.com",
-  "subdomain": "anna",
+  "description": "Anna - The HTML Presentation Framework. Write slides in Markdown, generate beautiful presentations.",
+  "homepage": "https://github.com/kwhorne/anna.js",
   "main": "js/anna.js",
   "bin": {
-    "anna": "cli/generate.js"
+    "anna": "cli/anna.js"
   },
+  "files": [
+    "js/",
+    "css/",
+    "lib/",
+    "plugin/",
+    "cli/"
+  ],
   "scripts": {
     "build:sass-core": "sass css/anna.scss css/anna.css",
     "build:sass-themes": "sass --no-source-map css/theme/source/:css/theme/",
@@ -17,21 +23,32 @@
     "build:js": "terser js/anna.js -o js/anna.min.js --comments '/^!/'",
     "build": "npm run build:css && npm run build:js",
     "start": "browser-sync start --server --files 'css/*.css, *.html, js/*.js'",
-    "generate": "node cli/generate.js",
+    "generate": "node cli/anna.js generate",
     "lint": "eslint js/anna.js",
     "test": "npm run lint && node --test test/*.test.js"
   },
+  "keywords": [
+    "presentation",
+    "slides",
+    "markdown",
+    "html",
+    "framework"
+  ],
   "author": {
     "name": "Knut W. Horne",
     "email": "kh@gets.no",
-    "web": "https://kwhorne.com"
+    "url": "https://kwhorne.com"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/kwhorne/anna.js.git"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16.7.0"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "marked": "^18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -40,8 +57,6 @@
     "clean-css-cli": "^5.6.3",
     "eslint": "^10.2.0",
     "express": "^4.21.2",
-    "gray-matter": "^4.0.3",
-    "marked": "^18.0.0",
     "mustache": "^4.2.0",
     "postcss": "^8.5.9",
     "postcss-cli": "^11.0.1",
