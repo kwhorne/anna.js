@@ -5,26 +5,6 @@
  * Author: Achim Staebler
  */
 
-
-// Default mixins and settings -----------------
-@import "../template/mixins";
-@import "../template/settings";
-// ---------------------------------------------
-
-
-
-// Include theme-specific fonts
-@import url(../../lib/font/league-gothic/league-gothic.css);
-@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
-
-/**
- * Solarized colors by Ethan Schoonover
- */
-html * {
-	color-profile: sRGB;
-	rendering-intent: auto;
-}
-
 // Solarized colors
 $base03:    #002b36;
 $base02:    #073642;
@@ -43,17 +23,20 @@ $blue:      #268bd2;
 $cyan:      #2aa198;
 $green:     #859900;
 
-// Override theme settings (see ../template/settings.scss)
-$mainColor: $base1;
-$headingColor: $base2;
-$headingTextShadow: none;
-$backgroundColor: $base03;
-$linkColor: $blue;
-$linkColorHover: color.adjust( $linkColor, $lightness: 20% );
-$selectionBackgroundColor: $magenta;
+@use "../template/settings" with (
+	$mainColor: $base1,
+	$headingColor: $base2,
+	$headingTextShadow: none,
+	$backgroundColor: $base03,
+	$linkColor: $blue,
+	$selectionBackgroundColor: $magenta
+);
+@use "../template/theme";
 
+@import url(../../lib/font/league-gothic/league-gothic.css);
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
 
-
-// Theme template ------------------------------
-@import "../template/theme";
-// ---------------------------------------------
+html * {
+	color-profile: sRGB;
+	rendering-intent: auto;
+}

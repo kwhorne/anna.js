@@ -19,7 +19,7 @@
     "start": "browser-sync start --server --files 'css/*.css, *.html, js/*.js'",
     "generate": "node cli/generate.js",
     "lint": "eslint js/anna.js",
-    "test": "npm run lint"
+    "test": "npm run lint && node --test test/*.test.js"
   },
   "author": {
     "name": "Knut W. Horne",

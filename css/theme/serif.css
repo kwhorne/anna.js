@@ -4,15 +4,10 @@
  *
  * This theme is Copyright (C) 2012-2013 Owen Versteeg, http://owenversteeg.com - it is MIT licensed.
  */
-.anna a {
-  line-height: 1.3em;
-}
-
 /*********************************************
  * GLOBAL STYLES
  *********************************************/
 body {
-  background: #F0F1EB;
   background-color: #F0F1EB;
 }
 
@@ -322,4 +317,7 @@ body {
   .backgrounds {
     background-color: #F0F1EB;
   }
+}
+.anna a {
+  line-height: 1.3em;
 }

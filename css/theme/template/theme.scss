@@ -1,4 +1,5 @@
 @use "sass:color";
+@use "settings" as *;
 
 // Base theme template for anna.js
 
@@ -7,7 +8,9 @@
  *********************************************/
 
 body {
-	@include bodyBackground();
+	@if $bodyBackground {
+		background: $bodyBackground;
+	}
 	background-color: $backgroundColor;
 }
 
