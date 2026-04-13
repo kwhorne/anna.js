@@ -28,20 +28,22 @@
 # Installer avhengigheter
 npm install
 
-# Start utviklingsserver
+# Start utviklingsserver med livereload
 npm start
 
 # Bygg for produksjon
 npm run build
 
-# Kompiler CSS fra SCSS
-sass css/anna.scss css/anna.css
+# Lint JavaScript
+npm run lint
 ```
 
 ### Moderne teknologi
 - **Dart Sass** - Moderne CSS-kompiler
-- **ES2020+** - Moderne JavaScript-støtte
-- **Responsive design** - Mobile-first tilnærming
+- **PostCSS + Autoprefixer** - Automatiske vendor-prefikser
+- **Terser** - JavaScript-minifisering
+- **ESLint** - Kodekvalitet
+- **BrowserSync** - Utviklingsserver med livereload
 
 ## 🎨 Temaer
 

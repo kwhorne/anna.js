@@ -6,9 +6,16 @@
   "subdomain": "anna",
   "main": "js/anna.js",
   "scripts": {
-    "test": "grunt test",
-    "start": "grunt serve",
-    "build": "grunt"
+    "build:sass-core": "sass css/anna.scss css/anna.css",
+    "build:sass-themes": "sass --no-source-map css/theme/source/:css/theme/",
+    "build:autoprefix": "postcss css/anna.css -o css/anna.css --no-map",
+    "build:cssmin": "cleancss -o css/anna.min.css css/anna.css",
+    "build:css": "npm run build:sass-core && npm run build:sass-themes && npm run build:autoprefix && npm run build:cssmin",
+    "build:js": "terser js/anna.js -o js/anna.min.js --comments '/^!/'",
+    "build": "npm run build:css && npm run build:js",
+    "start": "browser-sync start --server --files 'css/*.css, *.html, js/*.js'",
+    "lint": "eslint js/anna.js",
+    "test": "npm run lint"
   },
   "author": {
     "name": "Knut W. Horne",
@@ -23,22 +30,18 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "autoprefixer": "^10.4.27",
+    "browser-sync": "^3.0.4",
+    "clean-css-cli": "^5.6.3",
+    "eslint": "^10.2.0",
     "express": "^4.21.2",
-    "grunt": "^1.6.1",
-    "grunt-cli": "^1.5.0",
-    "grunt-autoprefixer": "^3.0.4",
-    "grunt-contrib-connect": "^5.0.1",
-    "grunt-contrib-cssmin": "^5.0.0",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-contrib-qunit": "^10.1.1",
-    "grunt-contrib-uglify": "^5.2.2",
-    "grunt-contrib-watch": "^1.1.0",
-    "sass": "^1.83.0",
-    "grunt-sass": "^4.0.0",
-    "grunt-zip": "~1.0.0",
-    "load-grunt-tasks": "^5.1.0",
     "mustache": "^4.2.0",
-    "socket.io": "^4.8.1"
+    "postcss": "^8.5.9",
+    "postcss-cli": "^11.0.1",
+    "sass": "^1.83.0",
+    "socket.io": "^4.8.1",
+    "terser": "^5.46.1"
   },
   "license": "MIT"
 }
