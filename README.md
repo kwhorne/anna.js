@@ -81,6 +81,7 @@ Første slide
 | `<!-- .slide: data-background-image="img.jpg" -->` | Bakgrunnsbilde |
 | `![alt](bilde.jpg)` | Bilde (auto-skalert til slide) |
 | `Note:` | Speaker notes (synlig med **S**) |
+| ` ```terminal ` | Animert terminal med typing-effekt |
 
 ## Frontmatter
 
@@ -108,6 +109,22 @@ anna generate <file.md> -w    # Watch-modus
 anna export <file.md>         # Eksporter til PDF
 anna --help                   # Vis hjelp
 ```
+
+## Terminal-slides
+
+Vis kommandoer med animert typing-effekt — perfekt for tech-talks:
+
+````markdown
+```terminal
+$ npm install anna.js
+added 42 packages in 2.3s
+
+$ anna generate slides.md
+✓ slides.md → slides.html
+```
+````
+
+Hvert kommando-par er et fragment-steg. Trykk piltaster for neste kommando.
 
 ## Temaer
 
@@ -137,7 +154,7 @@ npm test               # lint + tester
 
 ## Plugins
 
-markdown, highlight, notes, math, search, zoom, multiplex
+markdown, highlight, notes, math, search, zoom, multiplex, terminal
 
 ## Lisens
 
