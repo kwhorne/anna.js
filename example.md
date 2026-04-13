@@ -115,14 +115,32 @@ Her er notatene som bare presentatøren ser.
 
 ---
 
+## Terminal Demo
+
+```terminal
+$ npm install -g anna.js
+added 42 packages in 2.3s
+
+$ anna init my-presentation
+  Copying Anna.js assets...
+  ✓ Created slides.md
+  ✓ Generated slides.html
+
+$ anna generate slides.md --watch
+  ✓ slides.md → slides.html
+  Watching slides.md for changes...
+```
+
+---
+
 ## Kom i gang
 
 ```bash
 # Lag en presentasjon
-npx anna generate presentasjon.md
+npx anna init my-presentation
 
 # Med watch-modus
-npx anna generate presentasjon.md -w
+npx anna generate slides.md -w
 ```
 
 ---

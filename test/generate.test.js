@@ -102,6 +102,27 @@ describe('anna generate', () => {
 		assert.match(html, /data-background="#ff0000"/);
 	});
 
+	it('converts ```terminal blocks to terminal widgets', () => {
+		const md = '---\ntitle: Term\n---\n\n```terminal\n$ echo hello\nhello world\n\n$ ls\nfile.txt\n```\n';
+		const input = writeMd('terminal.md', md);
+		const html = generate(input, path.join(TMP, 'terminal.html'));
+
+		assert.match(html, /class="terminal"/);
+		assert.match(html, /\$ echo hello/);
+		assert.match(html, /hello world/);
+		assert.match(html, /plugin\/terminal\/terminal\.css/);
+		assert.match(html, /plugin\/terminal\/terminal\.js/);
+	});
+
+	it('omits terminal plugin when no terminal blocks exist', () => {
+		const md = '---\ntitle: NoTerm\n---\n\n# Just text\n';
+		const input = writeMd('noterm.md', md);
+		const html = generate(input, path.join(TMP, 'noterm.html'));
+
+		assert.doesNotMatch(html, /terminal\.css/);
+		assert.doesNotMatch(html, /terminal\.js/);
+	});
+
 	it('supports background images via slide attributes', () => {
 		const md = '---\ntitle: BG\n---\n\n<!-- .slide: data-background-image="photo.jpg" -->\n\n# Photo\n';
 		const input = writeMd('bgimg.md', md);

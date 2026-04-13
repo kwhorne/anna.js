@@ -156,8 +156,17 @@ function parseSlide(md) {
 		slide.notes = marked(noteParts[1].trim());
 	}
 
-	// Process <!-- .fragments --> directive
+	// Process ```terminal code blocks into terminal widgets
 	let processed = slideMarkdown.replace(
+		/```terminal\n([\s\S]*?)```/g,
+		(_, content) => {
+			const title = 'Terminal';
+			return `<div class="terminal" data-title="${title}">\n${content.trim()}\n</div>`;
+		}
+	);
+
+	// Process <!-- .fragments --> directive
+	processed = processed.replace(
 		/<!--\s*\.fragments(?:\s+([\w-]+))?\s*-->\n([\s\S]*?)(?=\n\n|$)/g,
 		(_, effect, listBlock) => {
 			const html = marked(listBlock.trim());
@@ -182,6 +191,13 @@ function parseSlide(md) {
 
 // --- HTML Generation ---
 
+function hasTerminalBlocks(slides) {
+	return slides.some(s => {
+		if (s.vertical) return s.vertical.some(v => v.content.includes('class="terminal"'));
+		return s.content.includes('class="terminal"');
+	});
+}
+
 function generateHTML(slides, config, annaRoot) {
 	const theme = config.theme || 'league';
 	const transition = config.transition || 'slide';
@@ -198,6 +214,8 @@ function generateHTML(slides, config, annaRoot) {
 
 	if (config.autoSlide) initOptions.autoSlide = config.autoSlide;
 	if (config.loop) initOptions.loop = true;
+
+	const useTerminal = hasTerminalBlocks(slides);
 
 	const slidesHTML = slides.map(slide => {
 		if (slide.vertical) {
@@ -221,7 +239,7 @@ ${author ? `\t\t<meta name="author" content="${esc(author)}">\n` : ''}
 \t\t<link rel="stylesheet" href="${p}/css/anna.css">
 \t\t<link rel="stylesheet" href="${p}/css/theme/${theme}.css">
 \t\t<link rel="stylesheet" href="${p}/lib/css/monokai.css">
-\t</head>
+${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ''}\t</head>
 \t<body>
 \t\t<div class="anna">
 \t\t\t<div class="slides">
@@ -230,6 +248,7 @@ ${slidesHTML}
 \t\t</div>
 
 \t\t<script src="${p}/js/anna.js"></script>
+${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}
 \t\t<script>
 \t\t\tAnna.initialize({
 ${Object.entries(initOptions).map(([k, v]) => `\t\t\t\t${k}: ${JSON.stringify(v)}`).join(',\n')},
