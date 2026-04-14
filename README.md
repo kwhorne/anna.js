@@ -235,4 +235,4 @@ markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, pl
 
 ## License
 
-MIT - Made with love from Knut W. Horne ([kwhorne.com](https://kwhorne.com))
+MIT - Made with ❤️ from Knut W. Horne ([kwhorne.com](https://kwhorne.com))
