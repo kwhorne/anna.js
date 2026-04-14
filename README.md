@@ -1,6 +1,6 @@
 # Anna.js
 
-Et presentasjonsrammeverk for web. Skriv slides i Markdown, velg blant 12 temaer, og presenter direkte i nettleseren.
+Et presentasjonsrammeverk for web med Markdown-first workflow. Skriv slides i Markdown med innebygd støtte for diagrammer, animerte terminaler, fragmenter og 12 temaer.
 
 ## Installasjon
 
@@ -17,20 +17,15 @@ npx anna init my-presentation
 ## Kom i gang
 
 ```bash
-# Opprett nytt prosjekt med alle filer
-anna init my-presentation
-
-# Eller bare generer fra en .md-fil
-anna generate slides.md
-anna generate slides.md --watch
-
-# Eksporter til PDF (krever puppeteer)
-anna export slides.md
+anna init my-presentation          # nytt prosjekt med alle filer
+anna generate slides.md            # generer HTML fra Markdown
+anna generate slides.md --watch    # regenerer ved endringer
+anna export slides.md              # eksporter til PDF (krever puppeteer)
 ```
 
-## Markdown-format
+## Eksempel
 
-```markdown
+`````markdown
 ---
 title: Min presentasjon
 theme: moon
@@ -43,16 +38,49 @@ Første slide
 
 ---
 
-## Andre slide
+## Fragmenter
 
 <!-- .fragments -->
-- Punkt 1
-- Punkt 2
-- Punkt 3
+- Punkt som vises ett om gangen
+- Med piltaster eller mellomrom
+- Perfekt for lister
 
 --
 
 ### Vertikal sub-slide
+
+Bruk `--` for vertikale slides
+
+---
+
+## Diagrammer
+
+```mermaid
+graph LR
+    A[Idé] --> B[Markdown] --> C[Presentasjon]
+```
+
+---
+
+## Terminal
+
+```terminal
+$ anna init demo
+  ✓ Created slides.md
+  ✓ Generated slides.html
+
+$ anna generate slides.md --watch
+  ✓ slides.md → slides.html
+  Watching slides.md for changes...
+```
+
+---
+
+<!-- .slide: data-background="#4d7e65" -->
+
+## Bakgrunner
+
+Farger, bilder og gradienter via slide-attributter
 
 ---
 
@@ -60,14 +88,17 @@ Første slide
 
 ---
 
-<!-- .slide: data-background-image="hero.jpg" -->
+## Speaker Notes
 
-## Fullskjerm-bakgrunn
+Trykk **S** for speaker-vindu.
+
+Note:
+Disse notatene ser bare presentatøren.
 
 ---
 
 # Takk!
-```
+`````
 
 ## Syntaks
 
@@ -81,8 +112,8 @@ Første slide
 | `<!-- .slide: data-background-image="img.jpg" -->` | Bakgrunnsbilde |
 | `![alt](bilde.jpg)` | Bilde (auto-skalert til slide) |
 | `Note:` | Speaker notes (synlig med **S**) |
-| ` ```terminal ` | Animert terminal med typing-effekt |
-| ` ```mermaid ` | Diagrammer (flowchart, sekvens, gantt, etc.) |
+| ````terminal ` | Animert terminal med typing-effekt |
+| ````mermaid ` | Diagrammer (flowchart, sekvens, gantt, etc.) |
 
 ## Frontmatter
 
@@ -101,19 +132,9 @@ loop: false
 ---
 ```
 
-## CLI-kommandoer
-
-```bash
-anna init [name]              # Opprett nytt prosjekt
-anna generate <file.md>       # Generer HTML fra Markdown
-anna generate <file.md> -w    # Watch-modus
-anna export <file.md>         # Eksporter til PDF
-anna --help                   # Vis hjelp
-```
-
 ## Terminal-slides
 
-Vis kommandoer med animert typing-effekt — perfekt for tech-talks:
+Kommandoer types ut karakter for karakter. Output vises etter typing. Hvert kommando-par er et fragment-steg.
 
 ````markdown
 ```terminal
@@ -125,25 +146,30 @@ $ anna generate slides.md
 ```
 ````
 
-Hvert kommando-par er et fragment-steg. Trykk piltaster for neste kommando.
-
 ## Mermaid-diagrammer
 
-Skriv diagrammer som tekst — flowcharts, sekvensdiagrammer, gantt og mer:
+Flowcharts, sekvensdiagrammer, gantt-charts og mer. Tema tilpasses automatisk til mørke/lyse Anna.js-temaer. Krever internett (lastes fra CDN).
 
 ````markdown
 ```mermaid
-graph LR
-    A[Markdown] --> B[Anna.js] --> C[Presentasjon]
+sequenceDiagram
+    Bruker->>CLI: slides.md
+    CLI->>Parser: Parse markdown
+    Parser->>HTML: Generer slides
+    HTML-->>Bruker: slides.html
 ```
 ````
-
-Tema tilpasses automatisk (mørk/lys) basert på valgt Anna.js-tema. Krever internett (Mermaid lastes fra CDN).
 
 ## Temaer
 
 **Mørke:** black, night, moon, blood, league (standard)
 **Lyse:** white, beige, sky, serif, simple, solarized
+
+I Markdown — sett `theme` i frontmatter. I HTML:
+
+```html
+<link rel="stylesheet" href="css/theme/moon.css">
+```
 
 ## Keyboard shortcuts
 
@@ -161,9 +187,9 @@ Tema tilpasses automatisk (mørk/lys) basert på valgt Anna.js-tema. Krever inte
 
 ```bash
 npm install
-npm run build          # kompiler SCSS + minifiser CSS/JS
-npm start              # utviklingsserver med livereload
-npm test               # lint + tester
+npm run build     # kompiler SCSS + minifiser CSS/JS
+npm start         # utviklingsserver med livereload
+npm test          # lint + 24 tester
 ```
 
 ## Plugins
