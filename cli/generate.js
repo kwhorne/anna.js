@@ -160,8 +160,15 @@ function parseSlide(md) {
 	let processed = slideMarkdown.replace(
 		/```terminal\n([\s\S]*?)```/g,
 		(_, content) => {
-			const title = 'Terminal';
-			return `<div class="terminal" data-title="${title}">\n${content.trim()}\n</div>`;
+			return `<div class="terminal" data-title="Terminal">\n${content.trim()}\n</div>`;
+		}
+	);
+
+	// Process ```mermaid code blocks into mermaid diagrams
+	processed = processed.replace(
+		/```mermaid\n([\s\S]*?)```/g,
+		(_, content) => {
+			return `<pre class="mermaid">\n${content.trim()}\n</pre>`;
 		}
 	);
 
@@ -198,6 +205,15 @@ function hasTerminalBlocks(slides) {
 	});
 }
 
+function hasMermaidBlocks(slides) {
+	return slides.some(s => {
+		if (s.vertical) return s.vertical.some(v => v.content.includes('class="mermaid"'));
+		return s.content.includes('class="mermaid"');
+	});
+}
+
+const DARK_THEMES = ['black', 'night', 'moon', 'blood', 'league'];
+
 function generateHTML(slides, config, annaRoot) {
 	const theme = config.theme || 'league';
 	const transition = config.transition || 'slide';
@@ -216,6 +232,8 @@ function generateHTML(slides, config, annaRoot) {
 	if (config.loop) initOptions.loop = true;
 
 	const useTerminal = hasTerminalBlocks(slides);
+	const useMermaid = hasMermaidBlocks(slides);
+	const mermaidTheme = DARK_THEMES.includes(theme) ? 'dark' : 'default';
 
 	const slidesHTML = slides.map(slide => {
 		if (slide.vertical) {
@@ -239,7 +257,7 @@ ${author ? `\t\t<meta name="author" content="${esc(author)}">\n` : ''}
 \t\t<link rel="stylesheet" href="${p}/css/anna.css">
 \t\t<link rel="stylesheet" href="${p}/css/theme/${theme}.css">
 \t\t<link rel="stylesheet" href="${p}/lib/css/monokai.css">
-${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ''}\t</head>
+${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ''}${useMermaid ? `\t\t<link rel="stylesheet" href="${p}/plugin/mermaid/mermaid.css">\n` : ''}\t</head>
 \t<body>
 \t\t<div class="anna">
 \t\t\t<div class="slides">
@@ -248,7 +266,10 @@ ${slidesHTML}
 \t\t</div>
 
 \t\t<script src="${p}/js/anna.js"></script>
-${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}
+${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}${useMermaid ? `\t\t<script type="module">
+\t\t\timport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+\t\t\tmermaid.initialize({ startOnLoad: true, theme: '${mermaidTheme}' });
+\t\t</script>\n` : ''}
 \t\t<script>
 \t\t\tAnna.initialize({
 ${Object.entries(initOptions).map(([k, v]) => `\t\t\t\t${k}: ${JSON.stringify(v)}`).join(',\n')},

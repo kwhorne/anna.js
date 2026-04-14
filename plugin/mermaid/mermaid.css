@@ -1,0 +1,30 @@
+.mermaid {
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+	font-size: 1em;
+	margin: 0.5em auto;
+	text-align: center;
+}
+
+.mermaid svg {
+	max-width: 90%;
+	max-height: 70vh;
+	margin: 0 auto;
+}
+
+/* Override anna.js pre defaults for mermaid blocks */
+.anna .slides section pre.mermaid {
+	width: auto;
+	margin: 0.5em auto;
+	box-shadow: none;
+	font-size: 1em;
+}
+
+/* Print mode */
+@media print {
+	.mermaid svg {
+		max-width: 100%;
+		max-height: none;
+	}
+}

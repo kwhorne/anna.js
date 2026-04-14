@@ -115,6 +115,37 @@ Her er notatene som bare presentatøren ser.
 
 ---
 
+## Diagrammer
+
+```mermaid
+graph LR
+    A[Markdown] --> B[Anna.js]
+    B --> C[HTML]
+    B --> D[PDF]
+    C --> E[Presentasjon]
+    D --> E
+    style B fill:#9ece6a,color:#1a1b26
+```
+
+---
+
+## Sekvensdiagram
+
+```mermaid
+sequenceDiagram
+    participant U as Bruker
+    participant CLI as anna generate
+    participant MD as Markdown Parser
+    participant HTML as HTML Output
+
+    U->>CLI: slides.md
+    CLI->>MD: Parse frontmatter + innhold
+    MD->>HTML: Generer slides
+    HTML-->>U: slides.html
+```
+
+---
+
 ## Terminal Demo
 
 ```terminal

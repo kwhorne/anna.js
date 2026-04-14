@@ -82,6 +82,7 @@ Første slide
 | `![alt](bilde.jpg)` | Bilde (auto-skalert til slide) |
 | `Note:` | Speaker notes (synlig med **S**) |
 | ` ```terminal ` | Animert terminal med typing-effekt |
+| ` ```mermaid ` | Diagrammer (flowchart, sekvens, gantt, etc.) |
 
 ## Frontmatter
 
@@ -126,6 +127,19 @@ $ anna generate slides.md
 
 Hvert kommando-par er et fragment-steg. Trykk piltaster for neste kommando.
 
+## Mermaid-diagrammer
+
+Skriv diagrammer som tekst — flowcharts, sekvensdiagrammer, gantt og mer:
+
+````markdown
+```mermaid
+graph LR
+    A[Markdown] --> B[Anna.js] --> C[Presentasjon]
+```
+````
+
+Tema tilpasses automatisk (mørk/lys) basert på valgt Anna.js-tema. Krever internett (Mermaid lastes fra CDN).
+
 ## Temaer
 
 **Mørke:** black, night, moon, blood, league (standard)
@@ -154,7 +168,7 @@ npm test               # lint + tester
 
 ## Plugins
 
-markdown, highlight, notes, math, search, zoom, multiplex, terminal
+markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid
 
 ## Lisens
 

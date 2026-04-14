@@ -114,6 +114,41 @@ describe('anna generate', () => {
 		assert.match(html, /plugin\/terminal\/terminal\.js/);
 	});
 
+	it('converts ```mermaid blocks to mermaid diagrams', () => {
+		const md = '---\ntitle: Merm\n---\n\n```mermaid\ngraph LR\n    A --> B\n```\n';
+		const input = writeMd('mermaid.md', md);
+		const html = generate(input, path.join(TMP, 'mermaid.html'));
+
+		assert.match(html, /<pre class="mermaid">/);
+		assert.match(html, /A --> B/);
+		assert.match(html, /mermaid\.esm\.min\.mjs/);
+		assert.match(html, /plugin\/mermaid\/mermaid\.css/);
+	});
+
+	it('uses dark mermaid theme for dark anna themes', () => {
+		const md = '---\ntheme: black\n---\n\n```mermaid\ngraph LR\n    A --> B\n```\n';
+		const input = writeMd('merm-dark.md', md);
+		const html = generate(input, path.join(TMP, 'merm-dark.html'));
+
+		assert.match(html, /theme: 'dark'/);
+	});
+
+	it('uses default mermaid theme for light anna themes', () => {
+		const md = '---\ntheme: white\n---\n\n```mermaid\ngraph LR\n    A --> B\n```\n';
+		const input = writeMd('merm-light.md', md);
+		const html = generate(input, path.join(TMP, 'merm-light.html'));
+
+		assert.match(html, /theme: 'default'/);
+	});
+
+	it('omits mermaid when no mermaid blocks exist', () => {
+		const md = '---\ntitle: NoMerm\n---\n\n# Just text\n';
+		const input = writeMd('nomerm.md', md);
+		const html = generate(input, path.join(TMP, 'nomerm.html'));
+
+		assert.doesNotMatch(html, /mermaid/);
+	});
+
 	it('omits terminal plugin when no terminal blocks exist', () => {
 		const md = '---\ntitle: NoTerm\n---\n\n# Just text\n';
 		const input = writeMd('noterm.md', md);
