@@ -1,51 +1,51 @@
 # Anna.js
 
-Presentasjonsrammeverk for web med Markdown-first workflow. Terminal-animasjoner, live kode, Mermaid-diagrammer, AI-generering, embed-modus og 12 temaer.
+A Markdown-first presentation framework for the web. Terminal animations, live code, Mermaid diagrams, AI generation, embed mode, and 12 themes.
 
-## Installasjon
+## Installation
 
 ```bash
 npm install -g anna.js
 ```
 
-## Kom i gang
+## Quick Start
 
 ```bash
-anna init my-presentation          # nytt prosjekt med alle filer
-anna generate slides.md            # generer HTML fra Markdown
-anna generate slides.md --watch    # regenerer ved endringer
-anna ai "Intro til Kubernetes"     # AI-generert presentasjon
-anna export slides.md              # eksporter til PDF
+anna init my-presentation          # scaffold a new project
+anna generate slides.md            # generate HTML from Markdown
+anna generate slides.md --watch    # regenerate on changes
+anna ai "Intro to Kubernetes"      # AI-generated presentation
+anna export slides.md              # export to PDF
 ```
 
-## Eksempel
+## Example
 
 `````markdown
 ---
-title: Min presentasjon
+title: My Presentation
 theme: moon
 transition: slide
 ---
 
-# Velkommen
+# Welcome
 
 ---
 
-## Fragmenter
+## Fragments
 
 <!-- .fragments -->
-- Vises ett om gangen
-- Med piltaster
+- Revealed one at a time
+- Using arrow keys
 
 --
 
-### Vertikal sub-slide
+### Vertical sub-slide
 
 ---
 
 ```mermaid
 graph LR
-    A[Idé] --> B[Markdown] --> C[Presentasjon]
+    A[Idea] --> B[Markdown] --> C[Presentation]
 ```
 
 ---
@@ -68,41 +68,41 @@ console.log("Hello, Anna.js!");
 
 <!-- .slide: data-background="#4d7e65" -->
 
-## Bakgrunnsfarge
+## Custom Background
 
 ---
 
 Note:
-Speaker notes — trykk S for å åpne.
+Speaker notes — press S to open.
 
 ---
 
-# Takk!
+# Thanks!
 `````
 
-## Syntaks
+## Syntax
 
-| Syntaks | Funksjon |
+| Syntax | Function |
 |---|---|
-| `---` | Horisontal slide-separator |
-| `--` | Vertikal slide-separator |
-| `<!-- .fragments -->` | Animerer hvert listepunkt |
-| `<!-- .fragment -->` | Gjør paragraf til fragment |
-| `<!-- .slide: data-background="#hex" -->` | Bakgrunnsfarge |
-| `<!-- .slide: data-background-image="img.jpg" -->` | Bakgrunnsbilde |
-| `![alt](bilde.jpg)` | Bilde (auto-skalert) |
+| `---` | Horizontal slide separator |
+| `--` | Vertical slide separator |
+| `<!-- .fragments -->` | Animate each list item |
+| `<!-- .fragment -->` | Make paragraph a fragment |
+| `<!-- .slide: data-background="#hex" -->` | Background color |
+| `<!-- .slide: data-background-image="img.jpg" -->` | Background image |
+| `![alt](image.jpg)` | Image (auto-scaled) |
 | `Note:` | Speaker notes |
-| ` ```terminal ` | Animert terminal med typing-effekt |
-| ` ```mermaid ` | Diagrammer (flowchart, sekvens, gantt) |
-| ` ```playground ` | Live kodeeditor (JS, HTML, CSS) |
+| ` ```terminal ` | Animated terminal with typing effect |
+| ` ```mermaid ` | Diagrams (flowchart, sequence, gantt) |
+| ` ```playground ` | Live code editor (JS, HTML, CSS) |
 
 ## Frontmatter
 
 ```yaml
 ---
-title: Tittel
-author: Navn
-theme: league        # 12 temaer
+title: Title
+author: Name
+theme: league        # 12 themes available
 transition: slide    # slide, fade, convex, concave, zoom, none
 controls: true
 progress: true
@@ -113,9 +113,9 @@ loop: false
 ---
 ```
 
-## Terminal-slides
+## Terminal Slides
 
-Kommandoer types ut karakter for karakter. Hvert kommando-par er et fragment-steg.
+Commands are typed out character by character. Each command group is a fragment step.
 
 ````markdown
 ```terminal
@@ -129,7 +129,7 @@ $ anna generate slides.md
 
 ## Live Code Playground
 
-Kjørbar kode direkte i slides — perfekt for workshops og kurs. Ctrl+Enter for å kjøre.
+Runnable code directly in slides — perfect for workshops and tutorials. Ctrl+Enter to run.
 
 ````markdown
 ```playground
@@ -142,57 +142,57 @@ console.log(`Hello, ${name}!`);
 ```
 ````
 
-Støtter JavaScript, HTML og CSS. Sandboxed kjøring.
+Supports JavaScript, HTML, and CSS. Sandboxed execution.
 
-## Mermaid-diagrammer
+## Mermaid Diagrams
 
-Flowcharts, sekvensdiagrammer, gantt-charts og mer. Tema tilpasses automatisk.
+Flowcharts, sequence diagrams, gantt charts, and more. Theme auto-matches your presentation.
 
 ````markdown
 ```mermaid
 sequenceDiagram
-    Bruker->>CLI: slides.md
-    CLI->>HTML: Generer
-    HTML-->>Bruker: slides.html
+    User->>CLI: slides.md
+    CLI->>HTML: Generate
+    HTML-->>User: slides.html
 ```
 ````
 
-Krever internett (Mermaid lastes fra CDN).
+Requires internet (Mermaid loaded from CDN).
 
-## AI-generering
+## AI Generation
 
-Generer en komplett presentasjon fra en outline eller et emne:
+Generate a complete presentation from an outline or topic:
 
 ```bash
 anna ai outline.txt
 anna ai "Introduction to Kubernetes" --theme moon
 ```
 
-Bruker Claude API. Krever `ANTHROPIC_API_KEY` og `npm install @anthropic-ai/sdk`.
+Uses the Claude API. Requires `ANTHROPIC_API_KEY` and `npm install @anthropic-ai/sdk`.
 
 ## Speaker View
 
-Trykk **S** for utvidet speaker-view:
+Press **S** for an enhanced speaker view:
 
-- **Nedtellingstimer** — grønn/gul/rød, pulserer ved overtime
-- **Tidsbruk per slide** — sanntidssporing
-- **Neste-slide forhåndsvisning**
-- **Fremdriftslinje** — slide X av Y
-- **Tre layouts** — Default, Wide, Notes-only
+- **Countdown timer** — green/yellow/red, pulses on overtime
+- **Per-slide timing** — real-time tracking
+- **Next slide preview**
+- **Progress bar** — slide X of Y
+- **Three layouts** — Default, Wide, Notes-only
 
-Timer og layout huskes via localStorage.
+Timer and layout persist via localStorage.
 
-## Embed-modus
+## Embed Mode
 
-Slides som web components for bloggposter og dokumentasjon:
+Slides as web components for blog posts and documentation:
 
 ```html
 <script src="https://unpkg.com/anna.js/js/anna-embed.js"></script>
 
 <anna-slide theme="moon">
   ## Hello World
-  - Punkt 1
-  - Punkt 2
+  - Point 1
+  - Point 2
 </anna-slide>
 
 <anna-deck theme="night">
@@ -201,38 +201,38 @@ Slides som web components for bloggposter og dokumentasjon:
 </anna-deck>
 ```
 
-Shadow DOM, alle 11 temaer, fragmenter, tastaturnavigasjon. Én `<script>`-tag.
+Shadow DOM, all 11 themes, fragments, and keyboard navigation. One `<script>` tag.
 
-## Temaer
+## Themes
 
-**Mørke:** black, night, moon, blood, league (standard)
-**Lyse:** white, beige, sky, serif, simple, solarized
+**Dark:** black, night, moon, blood, league (default)
+**Light:** white, beige, sky, serif, simple, solarized
 
-## Keyboard shortcuts
+## Keyboard Shortcuts
 
-| Tast | Funksjon |
+| Key | Function |
 |---|---|
-| Piltaster | Naviger mellom slides |
-| Space / N | Neste slide |
-| P | Forrige slide |
-| ESC / O | Slide-oversikt |
+| Arrow keys | Navigate between slides |
+| Space / N | Next slide |
+| P | Previous slide |
+| ESC / O | Slide overview |
 | S | Speaker notes |
-| F | Fullskjerm |
-| B / . | Pause (svart skjerm) |
+| F | Fullscreen |
+| B / . | Pause (black screen) |
 
-## Utvikling
+## Development
 
 ```bash
 npm install
-npm run build     # kompiler SCSS + minifiser CSS/JS
-npm start         # utviklingsserver med livereload
-npm test          # lint + 32 tester
+npm run build     # compile SCSS + minify CSS/JS
+npm start         # dev server with livereload
+npm test          # lint + 32 tests
 ```
 
 ## Plugins
 
 markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground
 
-## Lisens
+## License
 
 MIT — Knut W. Horne ([kwhorne.com](https://kwhorne.com))
