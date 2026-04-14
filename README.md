@@ -114,6 +114,7 @@ Disse notatene ser bare presentatøren.
 | `Note:` | Speaker notes (synlig med **S**) |
 | ````terminal ` | Animert terminal med typing-effekt |
 | ````mermaid ` | Diagrammer (flowchart, sekvens, gantt, etc.) |
+| ````playground ` | Live kodeeditor med output (JS, HTML, CSS) |
 
 ## Frontmatter
 
@@ -147,6 +148,26 @@ Bruker Claude API. Krever `ANTHROPIC_API_KEY` og `npm install @anthropic-ai/sdk`
 ## Terminal-slides
 
 Kommandoer types ut karakter for karakter. Output vises etter typing. Hvert kommando-par er et fragment-steg.
+
+## Live Code Playground
+
+Kjørbar kode direkte i slides — perfekt for workshops og kurs:
+
+````markdown
+```playground
+const name = "Anna";
+console.log(`Hello, ${name}!`);
+```
+
+```playground html
+<h1 style="color: coral">Hello!</h1>
+<p>Edit me and click Run.</p>
+```
+````
+
+Støtter JavaScript, HTML og CSS. Koden kjøres i sandkasse. Ctrl+Enter for å kjøre, Tab for innrykk.
+
+## Terminal-slides
 
 ````markdown
 ```terminal
@@ -247,7 +268,7 @@ npm test          # lint + 24 tester
 
 ## Plugins
 
-markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid
+markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground
 
 ## Lisens
 

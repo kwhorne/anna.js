@@ -146,6 +146,38 @@ sequenceDiagram
 
 ---
 
+## Live Code
+
+```playground
+const languages = ["JavaScript", "HTML", "CSS"];
+
+languages.forEach((lang, i) => {
+  console.log(`${i + 1}. ${lang}`);
+});
+
+console.log("\nEdit koden og trykk Ctrl+Enter!");
+```
+
+---
+
+## HTML Playground
+
+```playground html
+<div style="text-align: center; padding: 20px;">
+  <h2 style="color: coral;">Hei fra Anna.js!</h2>
+  <p>Rediger HTML-en og trykk <b>Run</b>.</p>
+  <button onclick="this.textContent='Klikket!'"
+          style="padding: 10px 24px; font-size: 16px;
+                 background: coral; color: white;
+                 border: none; border-radius: 6px;
+                 cursor: pointer;">
+    Klikk meg
+  </button>
+</div>
+```
+
+---
+
 ## Terminal Demo
 
 ```terminal

@@ -141,6 +141,33 @@ describe('anna generate', () => {
 		assert.match(html, /theme: 'default'/);
 	});
 
+	it('converts ```playground blocks to playground widgets', () => {
+		const md = '---\ntitle: Play\n---\n\n```playground\nconsole.log("hi");\n```\n';
+		const input = writeMd('playground.md', md);
+		const html = generate(input, path.join(TMP, 'playground.html'));
+
+		assert.match(html, /class="playground"/);
+		assert.match(html, /data-lang="javascript"/);
+		assert.match(html, /plugin\/playground\/playground\.css/);
+		assert.match(html, /plugin\/playground\/playground\.js/);
+	});
+
+	it('supports ```playground html blocks', () => {
+		const md = '---\ntitle: Play\n---\n\n```playground html\n<h1>Hello</h1>\n```\n';
+		const input = writeMd('play-html.md', md);
+		const html = generate(input, path.join(TMP, 'play-html.html'));
+
+		assert.match(html, /data-lang="html"/);
+	});
+
+	it('omits playground when no playground blocks exist', () => {
+		const md = '---\ntitle: NoPG\n---\n\n# Just text\n';
+		const input = writeMd('nopg.md', md);
+		const html = generate(input, path.join(TMP, 'nopg.html'));
+
+		assert.doesNotMatch(html, /playground/);
+	});
+
 	it('omits mermaid when no mermaid blocks exist', () => {
 		const md = '---\ntitle: NoMerm\n---\n\n# Just text\n';
 		const input = writeMd('nomerm.md', md);

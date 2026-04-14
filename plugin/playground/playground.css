@@ -1,0 +1,168 @@
+.playground-widget {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: auto 1fr auto;
+	background: #1a1b26;
+	border-radius: 8px;
+	overflow: hidden;
+	text-align: left;
+	font-size: 0.55em;
+	margin: 0.5em auto;
+	max-width: 95%;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	min-height: 200px;
+	max-height: 70vh;
+}
+
+.playground-header {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: #2a2b3d;
+	padding: 8px 12px;
+}
+
+.playground-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	display: inline-block;
+}
+
+.playground-dot-red { background: #ff5f57; }
+.playground-dot-yellow { background: #febc2e; }
+.playground-dot-green { background: #28c840; }
+
+.playground-tabs {
+	display: flex;
+	gap: 2px;
+	margin-left: 12px;
+}
+
+.playground-tab {
+	padding: 3px 12px;
+	border-radius: 4px 4px 0 0;
+	background: transparent;
+	color: #565f89;
+	border: none;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 12px;
+}
+
+.playground-tab.active {
+	background: #1a1b26;
+	color: #c0caf5;
+}
+
+.playground-run {
+	margin-left: auto;
+	background: #9ece6a;
+	color: #1a1b26;
+	border: none;
+	padding: 4px 14px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 12px;
+	font-family: inherit;
+}
+
+.playground-run:hover {
+	background: #73daca;
+}
+
+.playground-editor {
+	position: relative;
+	overflow: auto;
+}
+
+.playground-editor textarea {
+	width: 100%;
+	height: 100%;
+	min-height: 150px;
+	background: #1a1b26;
+	color: #c0caf5;
+	border: none;
+	padding: 16px;
+	font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+	font-size: 14px;
+	line-height: 1.6;
+	resize: none;
+	outline: none;
+	tab-size: 2;
+	box-sizing: border-box;
+}
+
+.playground-output {
+	border-left: 1px solid #2a2b3d;
+	position: relative;
+	overflow: auto;
+}
+
+.playground-output-label {
+	position: absolute;
+	top: 8px;
+	right: 12px;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #565f89;
+	z-index: 1;
+}
+
+.playground-iframe {
+	width: 100%;
+	height: 100%;
+	min-height: 150px;
+	border: none;
+	background: #fff;
+}
+
+/* HTML mode: editor full width, output below */
+.playground-widget[data-lang="html"] {
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr 1fr;
+}
+
+/* Console output (for JS without HTML) */
+.playground-console {
+	width: 100%;
+	height: 100%;
+	min-height: 150px;
+	background: #16161e;
+	color: #a9b1d6;
+	padding: 16px;
+	font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+	font-size: 13px;
+	line-height: 1.6;
+	overflow: auto;
+	box-sizing: border-box;
+	margin: 0;
+}
+
+.playground-console .log { color: #c0caf5; }
+.playground-console .error { color: #f7768e; }
+.playground-console .warn { color: #e0af68; }
+.playground-console .info { color: #7aa2f7; }
+
+.playground-status {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 12px;
+	background: #16161e;
+	font-family: system-ui, sans-serif;
+	font-size: 11px;
+	color: #565f89;
+}
+
+/* Print mode */
+@media print {
+	.playground-widget {
+		grid-template-columns: 1fr;
+	}
+	.playground-run { display: none; }
+}

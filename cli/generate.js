@@ -172,6 +172,15 @@ function parseSlide(md) {
 		}
 	);
 
+	// Process ```playground code blocks into live editors
+	processed = processed.replace(
+		/```playground\s*(html|css|javascript)?\n([\s\S]*?)```/g,
+		(_, lang, content) => {
+			const language = lang || 'javascript';
+			return `<div class="playground" data-lang="${language}">\n${content.trim()}\n</div>`;
+		}
+	);
+
 	// Process <!-- .fragments --> directive
 	processed = processed.replace(
 		/<!--\s*\.fragments(?:\s+([\w-]+))?\s*-->\n([\s\S]*?)(?=\n\n|$)/g,
@@ -205,6 +214,13 @@ function hasTerminalBlocks(slides) {
 	});
 }
 
+function hasPlaygroundBlocks(slides) {
+	return slides.some(s => {
+		if (s.vertical) return s.vertical.some(v => v.content.includes('class="playground"'));
+		return s.content.includes('class="playground"');
+	});
+}
+
 function hasMermaidBlocks(slides) {
 	return slides.some(s => {
 		if (s.vertical) return s.vertical.some(v => v.content.includes('class="mermaid"'));
@@ -233,6 +249,7 @@ function generateHTML(slides, config, annaRoot) {
 
 	const useTerminal = hasTerminalBlocks(slides);
 	const useMermaid = hasMermaidBlocks(slides);
+	const usePlayground = hasPlaygroundBlocks(slides);
 	const mermaidTheme = DARK_THEMES.includes(theme) ? 'dark' : 'default';
 
 	const slidesHTML = slides.map(slide => {
@@ -257,7 +274,7 @@ ${author ? `\t\t<meta name="author" content="${esc(author)}">\n` : ''}
 \t\t<link rel="stylesheet" href="${p}/css/anna.css">
 \t\t<link rel="stylesheet" href="${p}/css/theme/${theme}.css">
 \t\t<link rel="stylesheet" href="${p}/lib/css/monokai.css">
-${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ''}${useMermaid ? `\t\t<link rel="stylesheet" href="${p}/plugin/mermaid/mermaid.css">\n` : ''}\t</head>
+${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ''}${useMermaid ? `\t\t<link rel="stylesheet" href="${p}/plugin/mermaid/mermaid.css">\n` : ''}${usePlayground ? `\t\t<link rel="stylesheet" href="${p}/plugin/playground/playground.css">\n` : ''}\t</head>
 \t<body>
 \t\t<div class="anna">
 \t\t\t<div class="slides">
@@ -266,7 +283,7 @@ ${slidesHTML}
 \t\t</div>
 
 \t\t<script src="${p}/js/anna.js"></script>
-${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}${useMermaid ? `\t\t<script type="module">
+${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}${usePlayground ? `\t\t<script src="${p}/plugin/playground/playground.js"></script>\n` : ''}${useMermaid ? `\t\t<script type="module">
 \t\t\timport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 \t\t\tmermaid.initialize({ startOnLoad: true, theme: '${mermaidTheme}' });
 \t\t</script>\n` : ''}
