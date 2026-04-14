@@ -7,6 +7,7 @@
  *   anna init [name]              Create a new presentation project
  *   anna generate <file.md>       Generate HTML from Markdown
  *   anna export <file.md> [--pdf] Export presentation to PDF
+ *   anna ai <outline.txt|"topic"> Generate slides with AI
  */
 
 const command = process.argv[2];
@@ -23,6 +24,10 @@ switch (command) {
 
 	case 'export':
 		require('./export').run(args);
+		break;
+
+	case 'ai':
+		require('./ai').run(args);
 		break;
 
 	case '--help':
@@ -55,6 +60,7 @@ function showHelp() {
     anna init [name]                Create a new presentation project
     anna generate <file.md> [opts]  Generate HTML from Markdown
     anna export <file.md> [--pdf]   Export presentation to PDF
+    anna ai <outline|"topic">       Generate slides with AI (Claude)
     anna <file.md>                  Shorthand for generate
 
   Options:

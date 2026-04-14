@@ -132,6 +132,18 @@ loop: false
 ---
 ```
 
+## AI-generering
+
+Generer en komplett presentasjon fra en outline eller et emne:
+
+```bash
+anna ai outline.txt                       # fra en fil
+anna ai "Introduction to Kubernetes"      # fra et emne
+anna ai outline.txt --theme moon -o k8s.md
+```
+
+Bruker Claude API. Krever `ANTHROPIC_API_KEY` og `npm install @anthropic-ai/sdk`.
+
 ## Terminal-slides
 
 Kommandoer types ut karakter for karakter. Output vises etter typing. Hvert kommando-par er et fragment-steg.

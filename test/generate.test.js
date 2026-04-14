@@ -234,6 +234,30 @@ describe('anna cli', () => {
 	});
 });
 
+describe('anna ai', () => {
+	it('shows help with --help', () => {
+		const output = execFileSync('node', [CLI, 'ai', '--help'], { encoding: 'utf-8' });
+		assert.match(output, /Anna\.js AI/);
+		assert.match(output, /ANTHROPIC_API_KEY/);
+		assert.match(output, /--theme/);
+	});
+
+	it('shows help when no input given', () => {
+		const output = execFileSync('node', [CLI, 'ai'], { encoding: 'utf-8' });
+		assert.match(output, /Anna\.js AI/);
+	});
+
+	it('errors without API key', () => {
+		assert.throws(() => {
+			execFileSync('node', [CLI, 'ai', 'Test topic'], {
+				encoding: 'utf-8',
+				stdio: 'pipe',
+				env: { ...process.env, ANTHROPIC_API_KEY: '' }
+			});
+		});
+	});
+});
+
 describe('anna init', () => {
 	const INIT_DIR = path.join(__dirname, 'tmp-init');
 
