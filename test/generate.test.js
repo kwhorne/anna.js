@@ -258,6 +258,25 @@ describe('anna ai', () => {
 	});
 });
 
+describe('anna-embed.js', () => {
+	it('exists and is non-empty', () => {
+		const embedPath = path.join(__dirname, '..', 'js', 'anna-embed.js');
+		assert.ok(fs.existsSync(embedPath));
+		const content = fs.readFileSync(embedPath, 'utf-8');
+		assert.ok(content.length > 1000);
+		assert.match(content, /customElements\.define.*anna-slide/);
+		assert.match(content, /customElements\.define.*anna-deck/);
+	});
+
+	it('includes all theme definitions', () => {
+		const content = fs.readFileSync(path.join(__dirname, '..', 'js', 'anna-embed.js'), 'utf-8');
+		const themes = ['league', 'black', 'white', 'moon', 'night', 'solarized', 'blood', 'sky', 'beige', 'serif', 'simple'];
+		themes.forEach(t => {
+			assert.match(content, new RegExp(t + '\\s*:'));
+		});
+	});
+});
+
 describe('anna init', () => {
 	const INIT_DIR = path.join(__dirname, 'tmp-init');
 

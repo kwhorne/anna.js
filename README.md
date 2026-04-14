@@ -186,6 +186,33 @@ Trykk **S** under presentasjonen for utvidet speaker-view med:
 
 Timer og layout huskes mellom sesjoner via localStorage.
 
+## Embed-modus
+
+Legg inn slides i bloggposter, dokumentasjon eller README med en enkel `<script>`-tag:
+
+```html
+<script src="https://unpkg.com/anna.js/js/anna-embed.js"></script>
+
+<!-- Enkelt slide -->
+<anna-slide theme="moon">
+  ## Hello World
+  - Punkt 1
+  - Punkt 2
+</anna-slide>
+
+<!-- Interaktivt deck med navigasjon -->
+<anna-deck theme="night">
+  <anna-slide>
+    # Slide 1
+  </anna-slide>
+  <anna-slide>
+    # Slide 2
+  </anna-slide>
+</anna-deck>
+```
+
+Selvstendige web components med Shadow DOM — ingen konflikter med sidestiler. Inkluderer alle 11 temaer, markdown-parsing, fragmenter og tastaturnavigasjon.
+
 ## Temaer
 
 **Mørke:** black, night, moon, blood, league (standard)
