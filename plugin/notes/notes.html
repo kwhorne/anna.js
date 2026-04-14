@@ -2,833 +2,806 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-
-		<title>anna.js - Slide Notes</title>
-
+		<title>Anna.js — Speaker View</title>
 		<style>
+			* { margin: 0; padding: 0; box-sizing: border-box; }
+
 			body {
-				font-family: Helvetica;
-				font-size: 18px;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+				background: #1a1b26;
+				color: #c0caf5;
+				overflow: hidden;
+				height: 100vh;
 			}
 
-			#current-slide,
-			#upcoming-slide,
-			#speaker-controls {
-				padding: 6px;
-				box-sizing: border-box;
-				-moz-box-sizing: border-box;
+			/* --- Grid Layout --- */
+			.speaker-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: auto 1fr auto;
+				height: 100vh;
+				gap: 0;
 			}
 
-			#current-slide iframe,
-			#upcoming-slide iframe {
-				width: 100%;
+			/* --- Top Bar --- */
+			.top-bar {
+				grid-column: 1 / -1;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 8px 16px;
+				background: #16161e;
+				border-bottom: 1px solid #2a2b3d;
+				font-size: 13px;
+			}
+
+			.top-bar .progress-info {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.slide-counter {
+				font-size: 14px;
+				font-weight: 600;
+				color: #7aa2f7;
+			}
+
+			.progress-bar-container {
+				width: 200px;
+				height: 4px;
+				background: #2a2b3d;
+				border-radius: 2px;
+				overflow: hidden;
+			}
+
+			.progress-bar-fill {
 				height: 100%;
-				border: 1px solid #ddd;
+				background: #7aa2f7;
+				border-radius: 2px;
+				transition: width 0.3s ease;
 			}
 
-			#current-slide .label,
-			#upcoming-slide .label {
+			.layout-selector {
+				display: flex;
+				gap: 6px;
+			}
+
+			.layout-btn {
+				background: #2a2b3d;
+				border: 1px solid #3b3d57;
+				color: #787c99;
+				padding: 4px 10px;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 12px;
+			}
+
+			.layout-btn.active {
+				background: #3b3d57;
+				color: #c0caf5;
+			}
+
+			/* --- Slide Previews --- */
+			.slide-current, .slide-upcoming {
+				position: relative;
+				overflow: hidden;
+			}
+
+			.slide-current {
+				border-right: 1px solid #2a2b3d;
+			}
+
+			.slide-label {
 				position: absolute;
-				top: 10px;
-				left: 10px;
+				top: 8px;
+				left: 12px;
 				z-index: 2;
+				background: rgba(26, 27, 38, 0.85);
+				color: #787c99;
+				padding: 3px 10px;
+				border-radius: 4px;
+				font-size: 11px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
 			}
 
-			#connection-status {
-				position: absolute;
-				top: 0;
-				left: 0;
+			.slide-current iframe, .slide-upcoming iframe {
 				width: 100%;
 				height: 100%;
-				z-index: 20;
-				padding: 30% 20% 20% 20%;
-				font-size: 18px;
-				color: #222;
-				background: #fff;
-				text-align: center;
-				box-sizing: border-box;
-				line-height: 1.4;
+				border: none;
 			}
 
-			.overlay-element {
-				height: 34px;
-				line-height: 34px;
-				padding: 0 10px;
-				text-shadow: none;
-				background: rgba( 220, 220, 220, 0.8 );
-				color: #222;
+			/* --- Bottom Panel --- */
+			.bottom-panel {
+				grid-column: 1 / -1;
+				display: grid;
+				grid-template-columns: 1fr 2fr 1fr;
+				border-top: 1px solid #2a2b3d;
+				background: #16161e;
+				min-height: 180px;
+				max-height: 35vh;
+			}
+
+			/* --- Timers --- */
+			.timers {
+				padding: 16px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+				border-right: 1px solid #2a2b3d;
+			}
+
+			.timer-block {
+				display: flex;
+				flex-direction: column;
+			}
+
+			.timer-label {
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #565f89;
+				margin-bottom: 2px;
+			}
+
+			.timer-value {
+				font-size: 1.8em;
+				font-weight: 700;
+				font-variant-numeric: tabular-nums;
+				font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+				line-height: 1.2;
+			}
+
+			.timer-elapsed { color: #c0caf5; }
+
+			.timer-countdown { color: #9ece6a; cursor: pointer; }
+			.timer-countdown:hover { opacity: 0.8; }
+			.timer-countdown.warning { color: #e0af68; }
+			.timer-countdown.danger { color: #f7768e; }
+			.timer-countdown.overtime { color: #f7768e; animation: pulse 1s ease infinite; }
+
+			@keyframes pulse {
+				0%, 100% { opacity: 1; }
+				50% { opacity: 0.5; }
+			}
+
+			.timer-slide {
+				color: #787c99;
+				font-size: 1.1em;
+			}
+
+			.timer-clock {
+				color: #565f89;
+				font-size: 1em;
+			}
+
+			.timer-set-hint {
+				font-size: 10px;
+				color: #565f89;
+				margin-top: 2px;
+			}
+
+			/* --- Notes --- */
+			.notes-panel {
+				padding: 16px;
+				overflow-y: auto;
+			}
+
+			.notes-label {
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #565f89;
+				margin-bottom: 8px;
+			}
+
+			.notes-content {
+				font-size: 15px;
+				line-height: 1.6;
+				color: #a9b1d6;
+			}
+
+			.notes-content:empty::after {
+				content: 'No notes for this slide';
+				color: #3b3d57;
+				font-style: italic;
+			}
+
+			.notes-content a { color: #7aa2f7; }
+			.notes-content code {
+				background: #2a2b3d;
+				padding: 2px 6px;
+				border-radius: 3px;
+				font-size: 0.9em;
+			}
+			.notes-content ul, .notes-content ol {
+				padding-left: 20px;
+				margin: 8px 0;
+			}
+
+			/* --- Slide Time Stats --- */
+			.stats-panel {
+				padding: 16px;
+				border-left: 1px solid #2a2b3d;
+				overflow-y: auto;
+			}
+
+			.stats-label {
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #565f89;
+				margin-bottom: 8px;
+			}
+
+			.slide-time-list {
+				list-style: none;
+				font-size: 12px;
+				font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+			}
+
+			.slide-time-list li {
+				display: flex;
+				justify-content: space-between;
+				padding: 3px 0;
+				color: #565f89;
+				border-bottom: 1px solid #1a1b26;
+			}
+
+			.slide-time-list li.active {
+				color: #7aa2f7;
+				font-weight: 600;
+			}
+
+			.slide-time-list .slide-num { min-width: 50px; }
+			.slide-time-list .slide-dur { text-align: right; }
+
+			/* --- Connection Status --- */
+			#connection-status {
+				position: fixed;
+				top: 0; left: 0; right: 0; bottom: 0;
+				z-index: 100;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: #1a1b26;
+				color: #565f89;
+				font-size: 16px;
+			}
+
+			#connection-status.hidden { display: none; }
+
+			/* --- Countdown Modal --- */
+			.countdown-modal {
+				display: none;
+				position: fixed;
+				top: 0; left: 0; right: 0; bottom: 0;
+				z-index: 50;
+				background: rgba(0,0,0,0.7);
+				align-items: center;
+				justify-content: center;
+			}
+
+			.countdown-modal.visible { display: flex; }
+
+			.countdown-modal-inner {
+				background: #24283b;
+				border-radius: 12px;
+				padding: 32px;
+				text-align: center;
+				min-width: 300px;
+			}
+
+			.countdown-modal h3 {
+				font-size: 16px;
+				color: #c0caf5;
+				margin-bottom: 16px;
+			}
+
+			.countdown-modal input {
+				background: #1a1b26;
+				border: 1px solid #3b3d57;
+				color: #c0caf5;
+				padding: 10px 16px;
+				border-radius: 6px;
+				font-size: 24px;
+				width: 120px;
+				text-align: center;
+				font-family: 'SF Mono', Menlo, monospace;
+				outline: none;
+			}
+
+			.countdown-modal input:focus {
+				border-color: #7aa2f7;
+			}
+
+			.countdown-modal .unit {
+				color: #787c99;
+				font-size: 14px;
+				margin-left: 8px;
+			}
+
+			.countdown-modal .modal-actions {
+				margin-top: 20px;
+				display: flex;
+				gap: 10px;
+				justify-content: center;
+			}
+
+			.countdown-modal button {
+				padding: 8px 20px;
+				border-radius: 6px;
+				border: none;
+				cursor: pointer;
 				font-size: 14px;
 			}
 
-			.overlay-element.interactive:hover {
-				background: rgba( 220, 220, 220, 1 );
+			.btn-primary {
+				background: #7aa2f7;
+				color: #1a1b26;
+				font-weight: 600;
 			}
 
-			#current-slide {
-				position: absolute;
-				width: 60%;
-				height: 100%;
-				top: 0;
-				left: 0;
-				padding-right: 0;
+			.btn-secondary {
+				background: #2a2b3d;
+				color: #787c99;
 			}
-
-			#upcoming-slide {
-				position: absolute;
-				width: 40%;
-				height: 40%;
-				right: 0;
-				top: 0;
-			}
-
-			/* Speaker controls */
-			#speaker-controls {
-				position: absolute;
-				top: 40%;
-				right: 0;
-				width: 40%;
-				height: 60%;
-				overflow: auto;
-				font-size: 18px;
-			}
-
-				.speaker-controls-time.hidden,
-				.speaker-controls-notes.hidden {
-					display: none;
-				}
-
-				.speaker-controls-time .label,
-				.speaker-controls-pace .label,
-				.speaker-controls-notes .label {
-					text-transform: uppercase;
-					font-weight: normal;
-					font-size: 0.66em;
-					color: #666;
-					margin: 0;
-				}
-
-				.speaker-controls-time, .speaker-controls-pace {
-					border-bottom: 1px solid rgba( 200, 200, 200, 0.5 );
-					margin-bottom: 10px;
-					padding: 10px 16px;
-					padding-bottom: 20px;
-					cursor: pointer;
-				}
-
-				.speaker-controls-time .reset-button {
-					opacity: 0;
-					float: right;
-					color: #666;
-					text-decoration: none;
-				}
-				.speaker-controls-time:hover .reset-button {
-					opacity: 1;
-				}
-
-				.speaker-controls-time .timer,
-				.speaker-controls-time .clock {
-					width: 50%;
-				}
-
-				.speaker-controls-time .timer,
-				.speaker-controls-time .clock,
-				.speaker-controls-time .pacing .hours-value,
-				.speaker-controls-time .pacing .minutes-value,
-				.speaker-controls-time .pacing .seconds-value {
-					font-size: 1.9em;
-				}
-
-				.speaker-controls-time .timer {
-					float: left;
-				}
-
-				.speaker-controls-time .clock {
-					float: right;
-					text-align: right;
-				}
-
-				.speaker-controls-time span.mute {
-					opacity: 0.3;
-				}
-
-				.speaker-controls-time .pacing-title {
-					margin-top: 5px;
-				}
-
-				.speaker-controls-time .pacing.ahead {
-					color: blue;
-				}
-
-				.speaker-controls-time .pacing.on-track {
-					color: green;
-				}
-
-				.speaker-controls-time .pacing.behind {
-					color: red;
-				}
-
-				.speaker-controls-notes {
-					padding: 10px 16px;
-				}
-
-				.speaker-controls-notes .value {
-					margin-top: 5px;
-					line-height: 1.4;
-					font-size: 1.2em;
-				}
-
-			/* Layout selector */
-			#speaker-layout {
-				position: absolute;
-				top: 10px;
-				right: 10px;
-				color: #222;
-				z-index: 10;
-			}
-				#speaker-layout select {
-					position: absolute;
-					width: 100%;
-					height: 100%;
-					top: 0;
-					left: 0;
-					border: 0;
-					box-shadow: 0;
-					cursor: pointer;
-					opacity: 0;
-
-					font-size: 1em;
-					background-color: transparent;
-
-					-moz-appearance: none;
-					-webkit-appearance: none;
-					-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-				}
-
-				#speaker-layout select:focus {
-					outline: none;
-					box-shadow: none;
-				}
-
-			.clear {
-				clear: both;
-			}
-
-			/* Speaker layout: Wide */
-			body[data-speaker-layout="wide"] #current-slide,
-			body[data-speaker-layout="wide"] #upcoming-slide {
-				width: 50%;
-				height: 45%;
-				padding: 6px;
-			}
-
-			body[data-speaker-layout="wide"] #current-slide {
-				top: 0;
-				left: 0;
-			}
-
-			body[data-speaker-layout="wide"] #upcoming-slide {
-				top: 0;
-				left: 50%;
-			}
-
-			body[data-speaker-layout="wide"] #speaker-controls {
-				top: 45%;
-				left: 0;
-				width: 100%;
-				height: 50%;
-				font-size: 1.25em;
-			}
-
-			/* Speaker layout: Tall */
-			body[data-speaker-layout="tall"] #current-slide,
-			body[data-speaker-layout="tall"] #upcoming-slide {
-				width: 45%;
-				height: 50%;
-				padding: 6px;
-			}
-
-			body[data-speaker-layout="tall"] #current-slide {
-				top: 0;
-				left: 0;
-			}
-
-			body[data-speaker-layout="tall"] #upcoming-slide {
-				top: 50%;
-				left: 0;
-			}
-
-			body[data-speaker-layout="tall"] #speaker-controls {
-				padding-top: 40px;
-				top: 0;
-				left: 45%;
-				width: 55%;
-				height: 100%;
-				font-size: 1.25em;
-			}
-
-			/* Speaker layout: Notes only */
-			body[data-speaker-layout="notes-only"] #current-slide,
-			body[data-speaker-layout="notes-only"] #upcoming-slide {
-				display: none;
-			}
-
-			body[data-speaker-layout="notes-only"] #speaker-controls {
-				padding-top: 40px;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				font-size: 1.25em;
-			}
-
-			@media screen and (max-width: 1080px) {
-				body[data-speaker-layout="default"] #speaker-controls {
-					font-size: 16px;
-				}
-			}
-
-			@media screen and (max-width: 900px) {
-				body[data-speaker-layout="default"] #speaker-controls {
-					font-size: 14px;
-				}
-			}
-
-			@media screen and (max-width: 800px) {
-				body[data-speaker-layout="default"] #speaker-controls {
-					font-size: 12px;
-				}
-			}
-
 		</style>
 	</head>
 
 	<body>
+		<div id="connection-status">Connecting to presentation...</div>
 
-		<div id="connection-status">Loading speaker view...</div>
-
-		<div id="current-slide"></div>
-		<div id="upcoming-slide"><span class="overlay-element label">Upcoming</span></div>
-		<div id="speaker-controls">
-			<div class="speaker-controls-time">
-				<h4 class="label">Time <span class="reset-button">Click to Reset</span></h4>
-				<div class="clock">
-					<span class="clock-value">0:00 AM</span>
+		<div class="speaker-grid">
+			<!-- Top Bar -->
+			<div class="top-bar">
+				<div class="progress-info">
+					<span class="slide-counter">Slide 1 / 1</span>
+					<div class="progress-bar-container">
+						<div class="progress-bar-fill" style="width: 0%"></div>
+					</div>
 				</div>
-				<div class="timer">
-					<span class="hours-value">00</span><span class="minutes-value">:00</span><span class="seconds-value">:00</span>
-				</div>
-				<div class="clear"></div>
-
-				<h4 class="label pacing-title" style="display: none">Pacing – Time to finish current slide</h4>
-				<div class="pacing" style="display: none">
-					<span class="hours-value">00</span><span class="minutes-value">:00</span><span class="seconds-value">:00</span>
+				<div class="layout-selector">
+					<button class="layout-btn active" data-layout="default">Default</button>
+					<button class="layout-btn" data-layout="wide">Wide</button>
+					<button class="layout-btn" data-layout="notes">Notes</button>
 				</div>
 			</div>
 
-			<div class="speaker-controls-notes hidden">
-				<h4 class="label">Notes</h4>
-				<div class="value"></div>
+			<!-- Slide Previews -->
+			<div class="slide-current">
+				<span class="slide-label">Current</span>
+			</div>
+			<div class="slide-upcoming">
+				<span class="slide-label">Next</span>
+			</div>
+
+			<!-- Bottom Panel -->
+			<div class="bottom-panel">
+				<div class="timers">
+					<div class="timer-block">
+						<span class="timer-label">Elapsed</span>
+						<span class="timer-value timer-elapsed">00:00</span>
+					</div>
+					<div class="timer-block">
+						<span class="timer-label">Countdown</span>
+						<span class="timer-value timer-countdown" title="Click to set duration">--:--</span>
+						<span class="timer-set-hint">Click to set</span>
+					</div>
+					<div class="timer-block">
+						<span class="timer-label">On this slide</span>
+						<span class="timer-value timer-slide">0:00</span>
+					</div>
+					<div class="timer-block">
+						<span class="timer-label">Clock</span>
+						<span class="timer-value timer-clock"></span>
+					</div>
+				</div>
+
+				<div class="notes-panel">
+					<div class="notes-label">Notes</div>
+					<div class="notes-content"></div>
+				</div>
+
+				<div class="stats-panel">
+					<div class="stats-label">Time per slide</div>
+					<ul class="slide-time-list"></ul>
+				</div>
 			</div>
 		</div>
-		<div id="speaker-layout" class="overlay-element interactive">
-			<span class="speaker-layout-label"></span>
-			<select class="speaker-layout-dropdown"></select>
+
+		<!-- Countdown Setup Modal -->
+		<div class="countdown-modal">
+			<div class="countdown-modal-inner">
+				<h3>Set Presentation Duration</h3>
+				<div>
+					<input type="number" class="countdown-input" min="1" max="480" value="30" placeholder="30">
+					<span class="unit">minutes</span>
+				</div>
+				<div class="modal-actions">
+					<button class="btn-secondary countdown-clear">Clear</button>
+					<button class="btn-primary countdown-start">Start</button>
+				</div>
+			</div>
 		</div>
 
 		<script src="../../plugin/markdown/marked.js"></script>
 		<script>
+		(function() {
 
-			(function() {
+			// --- State ---
+			var connected = false,
+				currentState = null,
+				pendingCalls = {},
+				lastCallId = 0,
+				startTime = new Date(),
+				slideStartTime = new Date(),
+				countdownDuration = null,   // ms, null = not set
+				countdownStart = null,
+				slideTimings = {},          // { "h.v": totalMs }
+				currentSlideKey = '0.0',
+				totalSlides = 1;
 
-				var notes,
-					notesValue,
-					currentState,
-					currentSlide,
-					upcomingSlide,
-					layoutLabel,
-					layoutDropdown,
-					pendingCalls = {},
-					lastAnnaApiCallId = 0,
-					connected = false;
+			// --- DOM ---
+			var connectionStatus = document.getElementById('connection-status');
+			var currentSlideEl, upcomingSlideEl;
+			var elapsedEl = document.querySelector('.timer-elapsed');
+			var countdownEl = document.querySelector('.timer-countdown');
+			var slideTimerEl = document.querySelector('.timer-slide');
+			var clockEl = document.querySelector('.timer-clock');
+			var notesEl = document.querySelector('.notes-content');
+			var slideCounterEl = document.querySelector('.slide-counter');
+			var progressFillEl = document.querySelector('.progress-bar-fill');
+			var slideTimeListEl = document.querySelector('.slide-time-list');
+			var countdownModal = document.querySelector('.countdown-modal');
+			var countdownInput = document.querySelector('.countdown-input');
 
-				var SPEAKER_LAYOUTS = {
-					'default': 'Default',
-					'wide': 'Wide',
-					'tall': 'Tall',
-					'notes-only': 'Notes only'
-				};
+			// --- Restore from localStorage ---
+			try {
+				var saved = localStorage.getItem('anna-speaker-countdown');
+				if (saved) {
+					var d = JSON.parse(saved);
+					countdownDuration = d.duration;
+					countdownStart = new Date(d.start);
+				}
+				var savedStart = localStorage.getItem('anna-speaker-start');
+				if (savedStart) startTime = new Date(savedStart);
+			} catch(e) {}
 
-				setupLayout();
+			// --- Countdown Modal ---
+			countdownEl.addEventListener('click', function() {
+				countdownModal.classList.add('visible');
+				countdownInput.focus();
+				countdownInput.select();
+			});
 
-				var connectionStatus = document.querySelector( '#connection-status' );
-				var connectionTimeout = setTimeout( function() {
-					connectionStatus.innerHTML = 'Error connecting to main window.<br>Please try closing and reopening the speaker view.';
-				}, 5000 );
+			document.querySelector('.countdown-start').addEventListener('click', function() {
+				var minutes = parseInt(countdownInput.value);
+				if (minutes > 0) {
+					countdownDuration = minutes * 60 * 1000;
+					countdownStart = new Date();
+					startTime = new Date();
+					try {
+						localStorage.setItem('anna-speaker-countdown', JSON.stringify({
+							duration: countdownDuration, start: countdownStart.toISOString()
+						}));
+						localStorage.setItem('anna-speaker-start', startTime.toISOString());
+					} catch(e) {}
+				}
+				countdownModal.classList.remove('visible');
+			});
 
-				window.addEventListener( 'message', function( event ) {
+			document.querySelector('.countdown-clear').addEventListener('click', function() {
+				countdownDuration = null;
+				countdownStart = null;
+				countdownEl.textContent = '--:--';
+				countdownEl.className = 'timer-value timer-countdown';
+				document.querySelector('.timer-set-hint').textContent = 'Click to set';
+				try { localStorage.removeItem('anna-speaker-countdown'); } catch(e) {}
+				countdownModal.classList.remove('visible');
+			});
 
-					clearTimeout( connectionTimeout );
-					connectionStatus.style.display = 'none';
+			countdownInput.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter') document.querySelector('.countdown-start').click();
+				if (e.key === 'Escape') countdownModal.classList.remove('visible');
+			});
 
-					var data = JSON.parse( event.data );
+			// --- Layout ---
+			var layoutBtns = document.querySelectorAll('.layout-btn');
+			layoutBtns.forEach(function(btn) {
+				btn.addEventListener('click', function() {
+					layoutBtns.forEach(function(b) { b.classList.remove('active'); });
+					btn.classList.add('active');
+					applyLayout(btn.getAttribute('data-layout'));
+				});
+			});
 
-					// The overview mode is only useful to the anna.js instance
-					// where navigation occurs so we don't sync it
-					if( data.state ) delete data.state.overview;
+			function applyLayout(layout) {
+				var grid = document.querySelector('.speaker-grid');
+				var current = document.querySelector('.slide-current');
+				var upcoming = document.querySelector('.slide-upcoming');
+				var bottom = document.querySelector('.bottom-panel');
 
-					// Messages sent by the notes plugin inside of the main window
-					if( data && data.namespace === 'anna-notes' ) {
-						if( data.type === 'connect' ) {
-							handleConnectMessage( data );
-						}
-						else if( data.type === 'state' ) {
-							handleStateMessage( data );
-						}
-						else if( data.type === 'return' ) {
+				if (layout === 'wide') {
+					grid.style.gridTemplateColumns = '1fr 1fr';
+					grid.style.gridTemplateRows = 'auto 1fr auto';
+					current.style.display = '';
+					upcoming.style.display = '';
+					bottom.style.gridTemplateColumns = '1fr 2fr 1fr';
+				} else if (layout === 'notes') {
+					current.style.display = 'none';
+					upcoming.style.display = 'none';
+					bottom.style.gridTemplateColumns = '250px 1fr 200px';
+					grid.style.gridTemplateRows = 'auto 0 1fr';
+				} else {
+					grid.style.gridTemplateColumns = '1fr 1fr';
+					grid.style.gridTemplateRows = 'auto 1fr auto';
+					current.style.display = '';
+					upcoming.style.display = '';
+					bottom.style.gridTemplateColumns = '1fr 2fr 1fr';
+				}
+				try { localStorage.setItem('anna-speaker-layout', layout); } catch(e) {}
+			}
+
+			try {
+				var savedLayout = localStorage.getItem('anna-speaker-layout');
+				if (savedLayout) {
+					layoutBtns.forEach(function(b) {
+						b.classList.toggle('active', b.getAttribute('data-layout') === savedLayout);
+					});
+					applyLayout(savedLayout);
+				}
+			} catch(e) {}
+
+			// --- Timer Update (every second) ---
+			setInterval(updateTimers, 1000);
+			updateTimers();
+
+			function updateTimers() {
+				var now = new Date();
+
+				// Elapsed
+				var elapsed = now - startTime;
+				elapsedEl.textContent = formatTime(elapsed);
+
+				// Clock
+				clockEl.textContent = now.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+
+				// Slide timer
+				var onSlide = now - slideStartTime;
+				slideTimerEl.textContent = formatTime(onSlide);
+
+				// Countdown
+				if (countdownDuration && countdownStart) {
+					var remaining = countdownDuration - (now - countdownStart);
+					countdownEl.textContent = formatTime(Math.abs(remaining));
+					document.querySelector('.timer-set-hint').textContent = '';
+
+					if (remaining < 0) {
+						countdownEl.className = 'timer-value timer-countdown overtime';
+						countdownEl.textContent = '-' + formatTime(Math.abs(remaining));
+					} else if (remaining < countdownDuration * 0.15) {
+						countdownEl.className = 'timer-value timer-countdown danger';
+					} else if (remaining < countdownDuration * 0.35) {
+						countdownEl.className = 'timer-value timer-countdown warning';
+					} else {
+						countdownEl.className = 'timer-value timer-countdown';
+						countdownEl.style.color = '#9ece6a';
+					}
+				}
+
+				// Update slide timings for current slide
+				if (slideTimings[currentSlideKey] === undefined) {
+					slideTimings[currentSlideKey] = 0;
+				}
+			}
+
+			function formatTime(ms) {
+				var totalSec = Math.floor(Math.abs(ms) / 1000);
+				var min = Math.floor(totalSec / 60);
+				var sec = totalSec % 60;
+				if (min >= 60) {
+					var hr = Math.floor(min / 60);
+					min = min % 60;
+					return hr + ':' + pad(min) + ':' + pad(sec);
+				}
+				return min + ':' + pad(sec);
+			}
+
+			function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+			// --- Slide Time Tracking ---
+			function onSlideChanged(state) {
+				var now = new Date();
+				var timeOnPrevSlide = now - slideStartTime;
+
+				// Record time on previous slide
+				if (!slideTimings[currentSlideKey]) slideTimings[currentSlideKey] = 0;
+				slideTimings[currentSlideKey] += timeOnPrevSlide;
+
+				// Reset for new slide
+				var newKey = state.indexh + '.' + (state.indexv || 0);
+				currentSlideKey = newKey;
+				slideStartTime = now;
+
+				updateSlideTimeList(state);
+			}
+
+			function updateSlideTimeList(state) {
+				var html = '';
+				for (var key in slideTimings) {
+					var parts = key.split('.');
+					var label = 'Slide ' + (parseInt(parts[0]) + 1);
+					if (parseInt(parts[1]) > 0) label += '.' + (parseInt(parts[1]) + 1);
+					var isActive = key === currentSlideKey;
+					html += '<li class="' + (isActive ? 'active' : '') + '">' +
+						'<span class="slide-num">' + label + '</span>' +
+						'<span class="slide-dur">' + formatTime(slideTimings[key]) + '</span>' +
+						'</li>';
+				}
+				// Add current slide if not yet in timings
+				if (!slideTimings[currentSlideKey]) {
+					var parts = currentSlideKey.split('.');
+					var label = 'Slide ' + (parseInt(parts[0]) + 1);
+					if (parseInt(parts[1]) > 0) label += '.' + (parseInt(parts[1]) + 1);
+					html += '<li class="active"><span class="slide-num">' + label + '</span>' +
+						'<span class="slide-dur">0:00</span></li>';
+				}
+				slideTimeListEl.innerHTML = html;
+				// Auto-scroll to bottom
+				slideTimeListEl.parentNode.scrollTop = slideTimeListEl.parentNode.scrollHeight;
+			}
+
+			// --- Update Progress ---
+			function updateProgress(state) {
+				callAnnaApi('getSlidePastCount', [], function(past) {
+					callAnnaApi('getTotalSlides', [], function(total) {
+						totalSlides = total;
+						var current = past + 1;
+						slideCounterEl.textContent = 'Slide ' + current + ' / ' + total;
+						progressFillEl.style.width = ((current / total) * 100) + '%';
+					});
+				});
+			}
+
+			// --- Communication ---
+			window.addEventListener('message', function(event) {
+				var data;
+				try { data = JSON.parse(event.data); } catch(e) { return; }
+
+				if (data && data.namespace === 'anna-notes') {
+					if (data.type === 'connect') handleConnect(data);
+					else if (data.type === 'state') handleState(data);
+					else if (data.type === 'return') {
+						if (pendingCalls[data.callId]) {
 							pendingCalls[data.callId](data.result);
 							delete pendingCalls[data.callId];
 						}
 					}
-					// Messages sent by the anna.js inside of the current slide preview
-					else if( data && data.namespace === "anna" ) {
-						if( /ready/.test( data.eventName ) ) {
-							// Send a message back to notify that the handshake is complete
-							window.opener.postMessage( JSON.stringify({ namespace: 'anna-notes', type: 'connected'} ), '*' );
-						}
-						else if( /slidechanged|fragmentshown|fragmenthidden|paused|resumed/.test( data.eventName ) && currentState !== JSON.stringify( data.state ) ) {
-
-							window.opener.postMessage( JSON.stringify({ method: 'setState', args: [ data.state ]} ), '*' );
-
-						}
-					}
-
-				} );
-
-				/**
-				 * Asynchronously calls the Anna.js API of the main frame.
-				 */
-				function callAnnaApi( methodName, methodArguments, callback ) {
-
-					var callId = ++lastAnnaApiCallId;
-					pendingCalls[callId] = callback;
-					window.opener.postMessage( JSON.stringify( {
-						namespace: 'anna-notes',
-						type: 'call',
-						callId: callId,
-						methodName: methodName,
-						arguments: methodArguments
-					} ), '*' );
-
 				}
-
-				/**
-				 * Called when the main window is trying to establish a
-				 * connection.
-				 */
-				function handleConnectMessage( data ) {
-
-					if( connected === false ) {
-						connected = true;
-
-						setupIframes( data );
-						setupKeyboard();
-						setupNotes();
-						setupTimer();
+				else if (data && data.namespace === 'anna') {
+					if (/ready/.test(data.eventName)) {
+						window.opener.postMessage(JSON.stringify({
+							namespace: 'anna-notes', type: 'connected'
+						}), '*');
 					}
-
+					else if (/slidechanged|fragmentshown|fragmenthidden|paused|resumed/.test(data.eventName) &&
+						currentState !== JSON.stringify(data.state)) {
+						window.opener.postMessage(JSON.stringify({
+							method: 'setState', args: [data.state]
+						}), '*');
+					}
 				}
+			});
 
-				/**
-				 * Called when the main window sends an updated state.
-				 */
-				function handleStateMessage( data ) {
+			function callAnnaApi(method, args, callback) {
+				var id = ++lastCallId;
+				pendingCalls[id] = callback;
+				window.opener.postMessage(JSON.stringify({
+					namespace: 'anna-notes', type: 'call',
+					callId: id, methodName: method, arguments: args
+				}), '*');
+			}
 
-					// Store the most recently set state to avoid circular loops
-					// applying the same state
-					currentState = JSON.stringify( data.state );
+			var connectionTimeout = setTimeout(function() {
+				connectionStatus.textContent = 'Connection failed. Close and reopen speaker view.';
+			}, 5000);
 
-					// No need for updating the notes in case of fragment changes
-					if ( data.notes ) {
-						notes.classList.remove( 'hidden' );
-						notesValue.style.whiteSpace = data.whitespace;
-						if( data.markdown ) {
-							notesValue.innerHTML = marked( data.notes );
-						}
-						else {
-							notesValue.innerHTML = data.notes;
-						}
-					}
+			function handleConnect(data) {
+				if (connected) return;
+				connected = true;
+				clearTimeout(connectionTimeout);
+				connectionStatus.classList.add('hidden');
+
+				setupIframes(data);
+				setupKeyboard();
+			}
+
+			var prevState = null;
+			function handleState(data) {
+				currentState = JSON.stringify(data.state);
+
+				// Detect slide change
+				if (!prevState || prevState.indexh !== data.state.indexh || prevState.indexv !== data.state.indexv) {
+					if (prevState) onSlideChanged(data.state);
 					else {
-						notes.classList.add( 'hidden' );
+						currentSlideKey = data.state.indexh + '.' + (data.state.indexv || 0);
+						updateSlideTimeList(data.state);
 					}
-
-					// Update the note slides
-					currentSlide.contentWindow.postMessage( JSON.stringify({ method: 'setState', args: [ data.state ] }), '*' );
-					upcomingSlide.contentWindow.postMessage( JSON.stringify({ method: 'setState', args: [ data.state ] }), '*' );
-					upcomingSlide.contentWindow.postMessage( JSON.stringify({ method: 'next' }), '*' );
-
+					prevState = { indexh: data.state.indexh, indexv: data.state.indexv };
 				}
 
-				// Limit to max one state update per X ms
-				handleStateMessage = debounce( handleStateMessage, 200 );
-
-				/**
-				 * Forward keyboard events to the current slide window.
-				 * This enables keyboard events to work even if focus
-				 * isn't set on the current slide iframe.
-				 *
-				 * Block F5 default handling, it reloads and disconnects
-				 * the speaker notes window.
-				 */
-				function setupKeyboard() {
-
-					document.addEventListener( 'keydown', function( event ) {
-						if( event.keyCode === 116 || ( event.metaKey && event.keyCode === 82 ) ) {
-							event.preventDefault();
-							return false;
-						}
-						currentSlide.contentWindow.postMessage( JSON.stringify({ method: 'triggerKey', args: [ event.keyCode ] }), '*' );
-					} );
-
+				// Notes
+				if (data.notes) {
+					if (data.markdown && typeof marked !== 'undefined') {
+						notesEl.innerHTML = marked(data.notes);
+					} else {
+						notesEl.innerHTML = data.notes;
+					}
+				} else {
+					notesEl.innerHTML = '';
 				}
 
-				/**
-				 * Creates the preview iframes.
-				 */
-				function setupIframes( data ) {
-
-					var params = [
-						'receiver',
-						'progress=false',
-						'history=false',
-						'transition=none',
-						'autoSlide=0',
-						'backgroundTransition=none'
-					].join( '&' );
-
-					var urlSeparator = /\?/.test(data.url) ? '&' : '?';
-					var hash = '#/' + data.state.indexh + '/' + data.state.indexv;
-					var currentURL = data.url + urlSeparator + params + '&postMessageEvents=true' + hash;
-					var upcomingURL = data.url + urlSeparator + params + '&controls=false' + hash;
-
-					currentSlide = document.createElement( 'iframe' );
-					currentSlide.setAttribute( 'width', 1280 );
-					currentSlide.setAttribute( 'height', 1024 );
-					currentSlide.setAttribute( 'src', currentURL );
-					document.querySelector( '#current-slide' ).appendChild( currentSlide );
-
-					upcomingSlide = document.createElement( 'iframe' );
-					upcomingSlide.setAttribute( 'width', 640 );
-					upcomingSlide.setAttribute( 'height', 512 );
-					upcomingSlide.setAttribute( 'src', upcomingURL );
-					document.querySelector( '#upcoming-slide' ).appendChild( upcomingSlide );
-
+				// Update iframes
+				if (currentSlideEl) {
+					currentSlideEl.contentWindow.postMessage(JSON.stringify({ method: 'setState', args: [data.state] }), '*');
+				}
+				if (upcomingSlideEl) {
+					upcomingSlideEl.contentWindow.postMessage(JSON.stringify({ method: 'setState', args: [data.state] }), '*');
+					upcomingSlideEl.contentWindow.postMessage(JSON.stringify({ method: 'next' }), '*');
 				}
 
-				/**
-				 * Setup the notes UI.
-				 */
-				function setupNotes() {
+				updateProgress(data.state);
+			}
 
-					notes = document.querySelector( '.speaker-controls-notes' );
-					notesValue = document.querySelector( '.speaker-controls-notes .value' );
+			// Debounce state updates
+			handleState = (function(fn, ms) {
+				var lastTime = 0, timeout;
+				return function() {
+					var args = arguments, ctx = this;
+					clearTimeout(timeout);
+					var since = Date.now() - lastTime;
+					if (since > ms) { fn.apply(ctx, args); lastTime = Date.now(); }
+					else { timeout = setTimeout(function() { fn.apply(ctx, args); lastTime = Date.now(); }, ms - since); }
+				};
+			})(handleState, 200);
 
-				}
+			function setupIframes(data) {
+				var params = ['receiver', 'progress=false', 'history=false',
+					'transition=none', 'autoSlide=0', 'backgroundTransition=none'].join('&');
+				var sep = /\?/.test(data.url) ? '&' : '?';
+				var hash = '#/' + data.state.indexh + '/' + data.state.indexv;
 
-				function getTimings( callback ) {
+				currentSlideEl = document.createElement('iframe');
+				currentSlideEl.setAttribute('src', data.url + sep + params + '&postMessageEvents=true' + hash);
+				document.querySelector('.slide-current').appendChild(currentSlideEl);
 
-					callAnnaApi( 'getSlidesAttributes', [], function ( slideAttributes ) {
-						callAnnaApi( 'getConfig', [], function ( config ) {
-							var defaultTiming = config.defaultTiming;
-							if (defaultTiming == null) {
-								callback(null);
-								return;
-							}
+				upcomingSlideEl = document.createElement('iframe');
+				upcomingSlideEl.setAttribute('src', data.url + sep + params + '&controls=false' + hash);
+				document.querySelector('.slide-upcoming').appendChild(upcomingSlideEl);
+			}
 
-							var timings = [];
-							for ( var i in slideAttributes ) {
-								var slide = slideAttributes[ i ];
-								var timing = defaultTiming;
-								if( slide.hasOwnProperty( 'data-timing' )) {
-									var t = slide[ 'data-timing' ];
-									timing = parseInt(t);
-									if( isNaN(timing) ) {
-										console.warn("Could not parse timing '" + t + "' of slide " + i + "; using default of " + defaultTiming);
-										timing = defaultTiming;
-									}
-								}
-								timings.push(timing);
-							}
-
-							callback( timings );
-						} );
-					} );
-
-				}
-
-				/**
-				 * Return the number of seconds allocated for presenting
-				 * all slides up to and including this one.
-				 */
-				function getTimeAllocated( timings, callback ) {
-
-					callAnnaApi( 'getSlidePastCount', [], function ( currentSlide ) {
-						var allocated = 0;
-						for (var i in timings.slice(0, currentSlide + 1)) {
-							allocated += timings[i];
-						}
-						callback( allocated );
-					} );
-
-				}
-
-				/**
-				 * Create the timer and clock and start updating them
-				 * at an interval.
-				 */
-				function setupTimer() {
-
-					var start = new Date(),
-					timeEl = document.querySelector( '.speaker-controls-time' ),
-					clockEl = timeEl.querySelector( '.clock-value' ),
-					hoursEl = timeEl.querySelector( '.hours-value' ),
-					minutesEl = timeEl.querySelector( '.minutes-value' ),
-					secondsEl = timeEl.querySelector( '.seconds-value' ),
-					pacingTitleEl = timeEl.querySelector( '.pacing-title' ),
-					pacingEl = timeEl.querySelector( '.pacing' ),
-					pacingHoursEl = pacingEl.querySelector( '.hours-value' ),
-					pacingMinutesEl = pacingEl.querySelector( '.minutes-value' ),
-					pacingSecondsEl = pacingEl.querySelector( '.seconds-value' );
-
-					var timings = null;
-					getTimings( function ( _timings ) {
-
-						timings = _timings;
-						if (_timings !== null) {
-							pacingTitleEl.style.removeProperty('display');
-							pacingEl.style.removeProperty('display');
-						}
-
-						// Update once directly
-						_updateTimer();
-
-						// Then update every second
-						setInterval( _updateTimer, 1000 );
-
-					} );
-
-
-					function _resetTimer() {
-
-						if (timings == null) {
-							start = new Date();
-							_updateTimer();
-						}
-						else {
-							// Reset timer to beginning of current slide
-							getTimeAllocated( timings, function ( slideEndTimingSeconds ) {
-								var slideEndTiming = slideEndTimingSeconds * 1000;
-								callAnnaApi( 'getSlidePastCount', [], function ( currentSlide ) {
-									var currentSlideTiming = timings[currentSlide] * 1000;
-									var previousSlidesTiming = slideEndTiming - currentSlideTiming;
-									var now = new Date();
-									start = new Date(now.getTime() - previousSlidesTiming);
-									_updateTimer();
-								} );
-							} );
-						}
-
-					}
-
-					timeEl.addEventListener( 'click', function() {
-						_resetTimer();
-						return false;
-					} );
-
-					function _displayTime( hrEl, minEl, secEl, time) {
-
-						var sign = Math.sign(time) == -1 ? "-" : "";
-						time = Math.abs(Math.round(time / 1000));
-						var seconds = time % 60;
-						var minutes = Math.floor( time / 60 ) % 60 ;
-						var hours = Math.floor( time / ( 60 * 60 )) ;
-						hrEl.innerHTML = sign + zeroPadInteger( hours );
-						if (hours == 0) {
-							hrEl.classList.add( 'mute' );
-						}
-						else {
-							hrEl.classList.remove( 'mute' );
-						}
-						minEl.innerHTML = ':' + zeroPadInteger( minutes );
-						if (hours == 0 && minutes == 0) {
-							minEl.classList.add( 'mute' );
-						}
-						else {
-							minEl.classList.remove( 'mute' );
-						}
-						secEl.innerHTML = ':' + zeroPadInteger( seconds );
-					}
-
-					function _updateTimer() {
-
-						var diff, hours, minutes, seconds,
-						now = new Date();
-
-						diff = now.getTime() - start.getTime();
-
-						clockEl.innerHTML = now.toLocaleTimeString( 'en-US', { hour12: true, hour: '2-digit', minute:'2-digit' } );
-						_displayTime( hoursEl, minutesEl, secondsEl, diff );
-						if (timings !== null) {
-							_updatePacing(diff);
-						}
-
-					}
-
-					function _updatePacing(diff) {
-
-						getTimeAllocated( timings, function ( slideEndTimingSeconds ) {
-							var slideEndTiming = slideEndTimingSeconds * 1000;
-
-							callAnnaApi( 'getSlidePastCount', [], function ( currentSlide ) {
-								var currentSlideTiming = timings[currentSlide] * 1000;
-								var timeLeftCurrentSlide = slideEndTiming - diff;
-								if (timeLeftCurrentSlide < 0) {
-									pacingEl.className = 'pacing behind';
-								}
-								else if (timeLeftCurrentSlide < currentSlideTiming) {
-									pacingEl.className = 'pacing on-track';
-								}
-								else {
-									pacingEl.className = 'pacing ahead';
-								}
-								_displayTime( pacingHoursEl, pacingMinutesEl, pacingSecondsEl, timeLeftCurrentSlide );
-							} );
-						} );
-					}
-
-				}
-
-				/**
-				 * Sets up the speaker view layout and layout selector.
-				 */
-				function setupLayout() {
-
-					layoutDropdown = document.querySelector( '.speaker-layout-dropdown' );
-					layoutLabel = document.querySelector( '.speaker-layout-label' );
-
-					// Render the list of available layouts
-					for( var id in SPEAKER_LAYOUTS ) {
-						var option = document.createElement( 'option' );
-						option.setAttribute( 'value', id );
-						option.textContent = SPEAKER_LAYOUTS[ id ];
-						layoutDropdown.appendChild( option );
-					}
-
-					// Monitor the dropdown for changes
-					layoutDropdown.addEventListener( 'change', function( event ) {
-
-						setLayout( layoutDropdown.value );
-
-					}, false );
-
-					// Restore any currently persisted layout
-					setLayout( getLayout() );
-
-				}
-
-				/**
-				 * Sets a new speaker view layout. The layout is persisted
-				 * in local storage.
-				 */
-				function setLayout( value ) {
-
-					var title = SPEAKER_LAYOUTS[ value ];
-
-					layoutLabel.innerHTML = 'Layout' + ( title ? ( ': ' + title ) : '' );
-					layoutDropdown.value = value;
-
-					document.body.setAttribute( 'data-speaker-layout', value );
-
-					// Persist locally
-					if( supportsLocalStorage() ) {
-						window.localStorage.setItem( 'anna-speaker-layout', value );
-					}
-
-				}
-
-				/**
-				 * Returns the ID of the most recently set speaker layout
-				 * or our default layout if none has been set.
-				 */
-				function getLayout() {
-
-					if( supportsLocalStorage() ) {
-						var layout = window.localStorage.getItem( 'anna-speaker-layout' );
-						if( layout ) {
-							return layout;
-						}
-					}
-
-					// Default to the first record in the layouts hash
-					for( var id in SPEAKER_LAYOUTS ) {
-						return id;
-					}
-
-				}
-
-				function supportsLocalStorage() {
-
-					try {
-						localStorage.setItem('test', 'test');
-						localStorage.removeItem('test');
-						return true;
-					}
-					catch( e ) {
+			function setupKeyboard() {
+				document.addEventListener('keydown', function(event) {
+					// Block F5 / Cmd+R
+					if (event.keyCode === 116 || (event.metaKey && event.keyCode === 82)) {
+						event.preventDefault();
 						return false;
 					}
-
-				}
-
-				function zeroPadInteger( num ) {
-
-					var str = '00' + parseInt( num );
-					return str.substring( str.length - 2 );
-
-				}
-
-				/**
-				 * Limits the frequency at which a function can be called.
-				 */
-				function debounce( fn, ms ) {
-
-					var lastTime = 0,
-						timeout;
-
-					return function() {
-
-						var args = arguments;
-						var context = this;
-
-						clearTimeout( timeout );
-
-						var timeSinceLastCall = Date.now() - lastTime;
-						if( timeSinceLastCall > ms ) {
-							fn.apply( context, args );
-							lastTime = Date.now();
-						}
-						else {
-							timeout = setTimeout( function() {
-								fn.apply( context, args );
-								lastTime = Date.now();
-							}, ms - timeSinceLastCall );
-						}
-
+					if (currentSlideEl) {
+						currentSlideEl.contentWindow.postMessage(JSON.stringify({
+							method: 'triggerKey', args: [event.keyCode]
+						}), '*');
 					}
+				});
+			}
 
-				}
-
-			})();
-
+		})();
 		</script>
 	</body>
 </html>

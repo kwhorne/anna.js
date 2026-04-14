@@ -160,6 +160,20 @@ sequenceDiagram
 ```
 ````
 
+## Speaker View
+
+Trykk **S** under presentasjonen for utvidet speaker-view med:
+
+- **Nedtellingstimer** — klikk for å sette varighet, fargekodes grønn/gul/rød
+- **Tidsbruk per slide** — sporer tid på hver slide i sanntid
+- **Neste-slide forhåndsvisning** — se hva som kommer
+- **Fremdriftslinje** — slide X av Y med visuell progress
+- **Klokke og elapsed timer** — holdes i sync
+- **Speaker notes** — vises stort og lesbart
+- **Tre layouts** — Default, Wide, Notes-only
+
+Timer og layout huskes mellom sesjoner via localStorage.
+
 ## Temaer
 
 **Mørke:** black, night, moon, blood, league (standard)
