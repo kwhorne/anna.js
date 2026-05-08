@@ -1,0 +1,446 @@
+/* ============================================================
+   Live Plugin — Real-time Audience Interaction Stylesheet
+   Tokyo Night color scheme
+   ============================================================ */
+
+/* ----- Scaling inside slides ----- */
+
+.anna .slides .live-poll,
+.anna .slides .live-qa {
+	font-size: 0.65em;
+}
+
+/* ============================================================
+   POLLS
+   ============================================================ */
+
+.live-poll {
+	background: #1a1b26;
+	border-radius: 8px;
+	padding: 24px;
+	margin: 0.5em auto;
+	max-width: 90%;
+	text-align: left;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ----- Question heading ----- */
+
+.live-poll-question {
+	color: #c0caf5;
+	font-size: 1.3em;
+	font-weight: 700;
+	margin-bottom: 20px;
+	line-height: 1.3;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ----- Options container ----- */
+
+.live-poll-options {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+/* ----- Single option row ----- */
+
+.live-poll-option-row {
+	position: relative;
+}
+
+/* ----- Vote button ----- */
+
+.live-poll-btn {
+	display: block;
+	width: 100%;
+	padding: 12px 18px;
+	background: #2a2b3d;
+	color: #c0caf5;
+	border: 2px solid #3b3d57;
+	border-radius: 6px;
+	font-size: 1em;
+	font-family: inherit;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.2s ease,
+	            border-color 0.2s ease,
+	            transform 0.15s ease,
+	            box-shadow 0.2s ease;
+}
+
+.live-poll-btn:hover {
+	background: #33354a;
+	border-color: #7aa2f7;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(122, 162, 247, 0.15);
+}
+
+.live-poll-btn:active {
+	transform: translateY(0);
+}
+
+/* ----- Bar chart (visible after voting) ----- */
+
+.live-poll-bar {
+	display: none;
+	position: relative;
+	height: 40px;
+	background: #2a2b3d;
+	border-radius: 6px;
+	overflow: hidden;
+	align-items: center;
+}
+
+.live-poll-bar-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	border-radius: 6px;
+	transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+	opacity: 0.85;
+	min-width: 0;
+}
+
+.live-poll-count {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	height: 100%;
+	padding: 0 14px;
+	color: #c0caf5;
+	font-size: 0.9em;
+	font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+/* ----- Voted state ----- */
+
+.live-poll-voted .live-poll-btn {
+	pointer-events: none;
+	opacity: 0.4;
+	cursor: default;
+	transform: none;
+	box-shadow: none;
+	display: none;
+}
+
+.live-poll-voted .live-poll-bar {
+	display: flex;
+}
+
+/* ============================================================
+   Q&A
+   ============================================================ */
+
+.live-qa {
+	background: #1a1b26;
+	border-radius: 8px;
+	padding: 24px;
+	margin: 0.5em auto;
+	max-width: 90%;
+	text-align: left;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ----- Input row ----- */
+
+.live-qa-input-row {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.live-qa-input {
+	flex: 1;
+	padding: 10px 14px;
+	background: #16161e;
+	color: #c0caf5;
+	border: 2px solid #2a2b3d;
+	border-radius: 6px;
+	font-size: 1em;
+	font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+	outline: none;
+	transition: border-color 0.2s ease,
+	            box-shadow 0.2s ease;
+}
+
+.live-qa-input::placeholder {
+	color: #565f89;
+}
+
+.live-qa-input:focus {
+	border-color: #7aa2f7;
+	box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.15);
+}
+
+.live-qa-submit {
+	padding: 10px 20px;
+	background: #9ece6a;
+	color: #1a1b26;
+	border: none;
+	border-radius: 6px;
+	font-size: 1em;
+	font-weight: 600;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background 0.2s ease,
+	            transform 0.15s ease;
+}
+
+.live-qa-submit:hover {
+	background: #73daca;
+	transform: translateY(-1px);
+}
+
+.live-qa-submit:active {
+	transform: translateY(0);
+}
+
+/* ----- Question list ----- */
+
+.live-qa-list {
+	max-height: 300px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.live-qa-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+.live-qa-list::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.live-qa-list::-webkit-scrollbar-thumb {
+	background: #2a2b3d;
+	border-radius: 3px;
+}
+
+.live-qa-list::-webkit-scrollbar-thumb:hover {
+	background: #3b3d57;
+}
+
+/* ----- Single question ----- */
+
+.live-qa-item {
+	display: flex;
+	gap: 12px;
+	padding: 12px;
+	background: #16161e;
+	border-radius: 6px;
+	transition: background 0.2s ease;
+}
+
+.live-qa-item:hover {
+	background: #1e1f30;
+}
+
+/* ----- Upvote button ----- */
+
+.live-qa-upvote {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	padding: 6px 8px;
+	background: #2a2b3d;
+	border: 2px solid transparent;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.2s ease,
+	            border-color 0.2s ease,
+	            transform 0.15s ease;
+	flex-shrink: 0;
+	min-width: 44px;
+}
+
+.live-qa-upvote:hover {
+	background: #33354a;
+	border-color: #7aa2f7;
+	transform: translateY(-1px);
+}
+
+.live-qa-upvote:active {
+	transform: translateY(0);
+}
+
+.live-qa-upvote-arrow {
+	color: #565f89;
+	font-size: 0.85em;
+	line-height: 1;
+	transition: color 0.2s ease;
+}
+
+.live-qa-upvote-count {
+	color: #787c99;
+	font-size: 0.85em;
+	font-weight: 600;
+	font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
+	transition: color 0.2s ease;
+}
+
+/* Upvoted state */
+
+.live-qa-upvoted {
+	border-color: #7aa2f7;
+	background: rgba(122, 162, 247, 0.1);
+	pointer-events: none;
+	cursor: default;
+}
+
+.live-qa-upvoted .live-qa-upvote-arrow {
+	color: #7aa2f7;
+}
+
+.live-qa-upvoted .live-qa-upvote-count {
+	color: #7aa2f7;
+}
+
+/* ----- Question body ----- */
+
+.live-qa-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.live-qa-text {
+	color: #c0caf5;
+	font-size: 1em;
+	line-height: 1.5;
+	word-wrap: break-word;
+}
+
+.live-qa-time {
+	color: #565f89;
+	font-size: 0.8em;
+	margin-top: 4px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================================================
+   EMOJI REACTION BAR
+   ============================================================ */
+
+.live-reactions {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	display: flex;
+	gap: 8px;
+	padding: 10px 14px;
+	background: rgba(26, 27, 38, 0.9);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border-radius: 28px;
+	border: 1px solid #2a2b3d;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	z-index: 100;
+	transition: opacity 0.3s ease,
+	            transform 0.3s ease;
+}
+
+.live-reactions:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.live-reaction-btn {
+	width: 42px;
+	height: 42px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #2a2b3d;
+	border: none;
+	border-radius: 50%;
+	font-size: 20px;
+	cursor: pointer;
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+	            background 0.2s ease,
+	            box-shadow 0.2s ease;
+	padding: 0;
+	line-height: 1;
+}
+
+.live-reaction-btn:hover {
+	transform: scale(1.25);
+	background: #33354a;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.live-reaction-btn:active {
+	transform: scale(0.95);
+}
+
+/* ============================================================
+   FLOATING EMOJI ANIMATION
+   ============================================================ */
+
+.live-emoji-float {
+	position: fixed;
+	font-size: 32px;
+	pointer-events: none;
+	z-index: 101;
+	animation: emoji-float 2s ease-out forwards;
+	will-change: transform, opacity;
+}
+
+@keyframes emoji-float {
+	0% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+	20% {
+		transform: translateY(-40px) scale(1.15);
+		opacity: 1;
+	}
+	100% {
+		transform: translateY(-200px) scale(0.8);
+		opacity: 0;
+	}
+}
+
+/* ============================================================
+   PRINT MODE — hide all interactive elements
+   ============================================================ */
+
+@media print {
+	.live-poll {
+		box-shadow: none;
+		border: 1px solid #ccc;
+	}
+
+	.live-poll-btn {
+		border-color: #ccc;
+		color: #333;
+		background: #f5f5f5;
+	}
+
+	.live-qa {
+		box-shadow: none;
+		border: 1px solid #ccc;
+	}
+
+	.live-qa-input-row {
+		display: none;
+	}
+
+	.live-reactions {
+		display: none;
+	}
+
+	.live-emoji-float {
+		display: none;
+	}
+
+	.live-qa-upvote {
+		pointer-events: none;
+	}
+}

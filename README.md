@@ -1,6 +1,6 @@
 # Anna.js
 
-A Markdown-first presentation framework for the web. Terminal animations, live code, Mermaid diagrams, AI generation, offline PWA mode, dev server with live reload, and 12 themes.
+A Markdown-first presentation framework for the web. Terminal animations, live code playgrounds with syntax highlighting, Mermaid diagrams, AI generation, live audience interaction, offline PWA mode, and 11 themes.
 
 ## Installation
 
@@ -15,6 +15,7 @@ anna init my-presentation          # scaffold a new project
 anna generate slides.md            # generate HTML from Markdown
 anna generate slides.md --watch    # regenerate on changes
 anna serve slides.md               # dev server with live reload
+anna live slides.md                # live server with polls, Q&A, reactions
 anna ai "Intro to Kubernetes"      # AI-generated presentation
 anna ai refine slides.md           # improve existing slides with AI
 anna ai translate slides.md --lang en  # translate to another language
@@ -98,6 +99,10 @@ Speaker notes — press S to open.
 | ` ```terminal ` | Animated terminal with typing effect |
 | ` ```mermaid ` | Diagrams (flowchart, sequence, gantt) |
 | ` ```playground ` | Live code editor (JS, HTML, CSS) |
+| ` ```playground multi ` | Multi-file editor (JS + HTML + CSS tabs) |
+| ` ```playground step ` | Step-by-step code with diff highlighting |
+| ` ```poll ` | Live poll (requires `anna live`) |
+| ` ```qa ` | Live Q&A (requires `anna live`) |
 
 ## Frontmatter
 
@@ -132,7 +137,7 @@ $ anna generate slides.md
 
 ## Live Code Playground
 
-Runnable code directly in slides — perfect for workshops and tutorials. Ctrl+Enter to run.
+Runnable code directly in slides — perfect for workshops and tutorials. Built-in syntax highlighting with a Tokyo Night color scheme. Ctrl+Enter to run.
 
 ````markdown
 ```playground
@@ -146,6 +151,46 @@ console.log(`Hello, ${name}!`);
 ````
 
 Supports JavaScript, HTML, and CSS. Sandboxed execution.
+
+### Multi-file Playground
+
+Edit JS, HTML, and CSS in tabs with combined output:
+
+````markdown
+```playground multi
+=== js
+document.getElementById('msg').textContent = 'Hello!';
+=== html
+<div id="msg">Loading...</div>
+=== css
+#msg { color: coral; font-size: 2em; }
+```
+````
+
+### Step-by-step Code
+
+Build code incrementally across slides with visual diffs — added lines are highlighted in green:
+
+````markdown
+```playground step 1
+const x = 1;
+console.log(x);
+```
+````
+
+On the next slide:
+
+````markdown
+```playground step 2
+const x = 1;
+const y = 2;
+console.log(x + y);
+```
+````
+
+### Enhanced Console
+
+The JavaScript playground captures `console.log()`, `console.error()`, `console.warn()`, `console.info()`, `console.table()`, `console.clear()`, `console.group()` / `console.groupEnd()`, and shows the return value of the last expression.
 
 ## Mermaid Diagrams
 
@@ -173,6 +218,50 @@ anna serve slides.md --open        # auto-open browser
 ```
 
 Uses Server-Sent Events for reload — no browser extension needed. The server watches your `.md` file, rebuilds on every save, and pushes a reload signal to all connected browsers.
+
+## Anna Live
+
+Real-time audience interaction — polls, Q&A, and emoji reactions during presentations:
+
+```bash
+anna live slides.md                # start on port 4000
+anna live slides.md --port 8080   # custom port
+anna live slides.md --open        # auto-open browser
+```
+
+Share the audience URL or QR code — attendees participate from their phones.
+
+| Route | Description |
+|-------|-------------|
+| `/` | Presenter view (full presentation + live widgets) |
+| `/audience` | Audience view (mobile-friendly polls, Q&A, reactions) |
+| `/qr` | QR code page for sharing |
+
+### Live Polls
+
+````markdown
+```poll What is your favorite language?
+- JavaScript
+- Python
+- Rust
+- Go
+```
+````
+
+Animated bar charts update in real-time as the audience votes. One vote per person per poll.
+
+### Live Q&A
+
+````markdown
+```qa Ask me anything!
+```
+````
+
+The audience submits and upvotes questions. Questions are sorted by popularity in real-time.
+
+### Emoji Reactions
+
+A floating reaction bar (👍 ❤️ 😂 🎉 🤔) appears at the bottom of the screen. Emojis float upward with a fade animation when sent.
 
 ## AI Generation
 
@@ -285,7 +374,7 @@ npm test          # lint + 32 tests
 
 ## Plugins
 
-markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground
+markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground, live
 
 ## License
 

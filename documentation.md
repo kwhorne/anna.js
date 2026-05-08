@@ -2,7 +2,7 @@
 
 > **Version 1.0.0** · A Markdown-first presentation framework for the web.
 
-Anna.js turns Markdown files into beautiful, interactive HTML presentations with terminal animations, live code playgrounds, Mermaid diagrams, AI-powered generation, offline PWA support, and 11 built-in themes.
+Anna.js turns Markdown files into beautiful, interactive HTML presentations with terminal animations, live code playgrounds with syntax highlighting, Mermaid diagrams, AI-powered generation, live audience interaction, offline PWA support, and 11 built-in themes.
 
 ---
 
@@ -18,6 +18,7 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
   - [anna ai](#anna-ai)
   - [anna ai refine](#anna-ai-refine)
   - [anna ai translate](#anna-ai-translate)
+  - [anna live](#anna-live)
 - [Markdown Syntax](#markdown-syntax)
   - [Slide Separators](#slide-separators)
   - [Frontmatter](#frontmatter)
@@ -27,9 +28,16 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
   - [Images](#images)
 - [Terminal Slides](#terminal-slides)
 - [Live Code Playground](#live-code-playground)
+  - [Multi-file Playground](#multi-file-playground)
+  - [Step-by-step Code](#step-by-step-code)
+  - [Enhanced Console](#enhanced-console)
 - [Mermaid Diagrams](#mermaid-diagrams)
 - [Offline & PWA](#offline--pwa)
 - [Dev Server](#dev-server)
+- [Anna Live](#anna-live-1)
+  - [Live Polls](#live-polls)
+  - [Live Q&A](#live-qa)
+  - [Emoji Reactions](#emoji-reactions)
 - [PDF Export](#pdf-export)
 - [Speaker View](#speaker-view)
 - [Embed Mode](#embed-mode)
@@ -49,6 +57,7 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
   - [Search](#search-plugin)
   - [Zoom](#zoom-plugin)
   - [Multiplex](#multiplex-plugin)
+  - [Live](#live-plugin)
 - [JavaScript API](#javascript-api)
   - [Anna.initialize()](#annainitialize)
   - [Configuration Reference](#configuration-reference)
@@ -218,6 +227,55 @@ No browser extension required. Gracefully shuts down on `Ctrl+C`.
 anna serve slides.md                           # http://localhost:3000
 anna serve slides.md --port 8080               # http://localhost:8080
 anna serve slides.md --open                    # auto-opens browser
+```
+
+---
+
+### anna live
+
+Start a live presentation server with real-time audience interaction.
+
+```bash
+anna live <input.md> [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--port`, `-p <number>` | Port to listen on (default: `4000`) |
+| `--open`, `-o` | Automatically open the browser |
+| `--help`, `-h` | Show help |
+
+**Routes:**
+
+| Route | Description |
+|-------|-------------|
+| `/` | Presenter view — full presentation with live plugin injected |
+| `/audience` | Audience view — mobile-friendly page with polls, Q&A, and reactions |
+| `/qr` | QR code page for sharing the audience URL |
+| `/api/state` | JSON endpoint with current server state |
+
+**How it works:**
+
+1. Builds the presentation from Markdown
+2. Starts an Express + Socket.IO server
+3. Injects the live plugin into the presenter view
+4. Generates a standalone audience page with current slide tracking
+5. Manages polls, Q&A, and reactions via Socket.IO events
+6. Watches the `.md` file and rebuilds on changes
+
+**Socket.IO events managed:**
+- `poll-vote` — one vote per session per poll
+- `qa-question` — new question submission
+- `qa-upvote` — one upvote per session per question
+- `reaction` — emoji reactions (batched in 500ms windows)
+- `slide-changed` — syncs audience view with presenter
+
+**Examples:**
+
+```bash
+anna live slides.md                # http://localhost:4000
+anna live slides.md --port 8080   # http://localhost:8080
+anna live slides.md --open        # auto-opens browser
 ```
 
 ---
@@ -605,7 +663,9 @@ The terminal plugin automatically colorizes output lines containing:
 
 ## Live Code Playground
 
-Playground blocks create interactive code editors with a Run button directly in your slides. Perfect for workshops and tutorials.
+Playground blocks create interactive code editors with built-in syntax highlighting, a Run button, and real-time output directly in your slides. Perfect for workshops and tutorials.
+
+The editor uses a mirror technique — a transparent textarea on top of a syntax-highlighted overlay — providing colored tokens without any external dependencies.
 
 ````markdown
 ```playground
@@ -644,28 +704,113 @@ h1 { color: white; font-size: 3em; }
 | `html` | Rendered in a sandboxed `<iframe>` | Visual preview |
 | `css` | Applied to an `<iframe>` with default HTML | Visual preview |
 
+### Multi-file Playground
+
+Edit JavaScript, HTML, and CSS in tabs with combined output:
+
+````markdown
+```playground multi
+=== js
+document.getElementById('msg').textContent = 'Hello!';
+=== html
+<div id="msg">Loading...</div>
+=== css
+#msg { color: coral; font-size: 2em; }
+```
+````
+
+Use `=== js`, `=== html`, and `=== css` to separate sections. The output iframe renders the HTML with CSS applied and JS executed. Tabs in the editor header switch between files.
+
+### Step-by-step Code
+
+Build code incrementally across slides with visual diffs. Added lines are highlighted with a green left border:
+
+````markdown
+```playground step 1
+const x = 1;
+console.log(x);
+```
+````
+
+On the next slide:
+
+````markdown
+```playground step 2
+const x = 1;
+const y = 2;
+console.log(x + y);
+```
+````
+
+The plugin uses an LCS-based diff algorithm to identify added lines. Diff highlighting clears automatically when the user starts editing.
+
+For multiple independent step sequences, use `data-step-group`:
+
+````markdown
+```playground step 1 groupA
+// First sequence, step 1
+```
+
+```playground step 1 groupB
+// Second sequence, step 1
+```
+````
+
+### Enhanced Console
+
+The JavaScript playground captures these console methods:
+
+| Method | Rendering |
+|--------|-----------|
+| `console.log()` | Standard output |
+| `console.error()` | Red text |
+| `console.warn()` | Amber text |
+| `console.info()` | Blue text |
+| `console.table(data)` | ASCII box-drawing table |
+| `console.clear()` | Clears previous output |
+| `console.group(label)` / `console.groupEnd()` | Indented grouping with `▸` label |
+
+The return value of the last expression is displayed as `← value` in purple, similar to browser DevTools.
+
 ### Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
 | `Ctrl+Enter` / `Cmd+Enter` | Run code |
-| `Tab` | Insert 2 spaces (does not leave the editor) |
+| `Tab` | Insert 2 spaces |
+| `Shift+Tab` | Dedent |
+| Multi-line selection + `Tab` | Indent all selected lines |
+| Multi-line selection + `Shift+Tab` | Dedent all selected lines |
+
+### Syntax Highlighting Tokens
+
+The built-in tokenizer applies these Tokyo Night theme colors:
+
+| Token | Color | Applies to |
+|-------|-------|------------|
+| `.token-keyword` | `#bb9af7` purple | `const`, `let`, `function`, `return`, `if`, `class`, etc. |
+| `.token-string` | `#9ece6a` green | Single/double/template strings |
+| `.token-number` | `#ff9e64` orange | Numeric literals |
+| `.token-comment` | `#565f89` gray | `//` and `/* */` comments |
+| `.token-operator` | `#89ddff` cyan | `=`, `+`, `=>`, etc. |
+| `.token-function` | `#7aa2f7` blue | Function names |
+| `.token-boolean` | `#ff9e64` orange | `true`, `false` |
+| `.token-tag` | `#f7768e` red | HTML tags |
+| `.token-attr-name` | `#bb9af7` purple | HTML attribute names |
+| `.token-attr-value` | `#9ece6a` green | HTML attribute values |
+| `.token-selector` | `#bb9af7` purple | CSS selectors |
+| `.token-property` | `#7dcfff` cyan | CSS properties |
+| `.token-value` | `#ff9e64` orange | CSS values |
+| `.token-at-rule` | `#f7768e` red | CSS `@media`, `@keyframes`, etc. |
 
 ### Configuration Attributes
 
 | Attribute | Default | Description |
 |-----------|---------|-------------|
-| `data-lang` | `javascript` | Language: `javascript`, `html`, or `css` |
+| `data-lang` | `javascript` | Language: `javascript`, `html`, `css`, or `multi` |
 | `data-autorun` | `true` | Set to `"false"` to disable auto-run on load |
-
-### Console Capture
-
-For JavaScript playgrounds, the following console methods are captured and displayed:
-
-- `console.log()`
-- `console.error()` (red text)
-- `console.warn()` (amber text)
-- `console.info()` (blue text)
+| `data-step` | *(none)* | Step number for step-by-step mode |
+| `data-step-group` | *(none)* | Group name for independent step sequences |
 
 ---
 
@@ -811,6 +956,84 @@ The `anna serve` command provides a zero-configuration development experience wi
 - **Local file serving** — Images and other files from the Markdown file's directory.
 - **Graceful shutdown** — Closes all SSE connections and the HTTP server on `SIGINT`.
 - **Auto-reconnect** — If the SSE connection drops, the client retries after 1 second.
+
+---
+
+## Anna Live
+
+Real-time audience interaction during presentations — polls, Q&A, and emoji reactions.
+
+```bash
+anna live slides.md               # start on port 4000
+anna live slides.md --port 8080   # custom port
+anna live slides.md --open        # auto-open browser
+```
+
+The live server provides three views:
+
+| Route | Description |
+|-------|-------------|
+| `/` | Presenter view — full presentation with live widgets |
+| `/audience` | Audience view — mobile-friendly polls, Q&A, and reactions |
+| `/qr` | QR code page for sharing the audience URL |
+
+### Live Polls
+
+Add interactive polls to any slide:
+
+````markdown
+```poll What is your favorite language?
+- JavaScript
+- Python
+- Rust
+- Go
+```
+````
+
+**Features:**
+- Animated horizontal bar charts with real-time updates
+- Five accent colors cycling through blue, green, purple, orange, and red
+- One vote per person per poll (tracked by session ID)
+- Results update instantly for all connected clients
+- Votes persist in server memory for the duration of the session
+
+### Live Q&A
+
+Add a Q&A widget where the audience can submit and upvote questions:
+
+````markdown
+```qa Ask me anything!
+```
+````
+
+**Features:**
+- Text input for submitting questions
+- Upvote button (▲) with count — one upvote per person per question
+- Questions sorted by popularity (most upvotes first)
+- Real-time updates as new questions arrive
+- Scrollable list for long Q&A sessions
+
+### Emoji Reactions
+
+A floating reaction bar automatically appears at the bottom-right of the presentation:
+
+**Available reactions:** 👍 ❤️ 😂 🎉 🤔
+
+**Features:**
+- Click to send a reaction
+- Floating emoji animation rises from the bottom and fades out
+- Reactions are batched in 500ms windows for performance
+- Visible to all connected clients (presenter and audience)
+
+### Architecture
+
+The live server uses Express + Socket.IO:
+
+- **Socket.IO lazy-loading** — The client plugin loads Socket.IO from CDN; gracefully no-ops if unavailable
+- **Session management** — Random session ID per browser tab via `sessionStorage`
+- **Reaction batching** — Multiple reactions within 500ms are aggregated into a single broadcast
+- **Slide sync** — The audience view tracks the presenter's current slide
+- **File watching** — Presenter view rebuilds automatically on Markdown changes
 
 ---
 
@@ -1272,6 +1495,44 @@ node plugin/multiplex/index.js
 
 ---
 
+### Live Plugin
+
+**Files:** `plugin/live/live.js`, `plugin/live/live.css`
+
+Real-time audience interaction — polls, Q&A, and emoji reactions. See [Anna Live](#anna-live-1) for full documentation.
+
+**Activation:** Requires `Anna.getConfig().live` to be set (automatically configured by `anna live`).
+
+**Configuration:**
+
+```javascript
+Anna.initialize({
+    live: {
+        url: 'http://localhost:4000',  // Socket.IO server URL
+        mode: 'presenter'              // 'presenter' or 'audience'
+    }
+});
+```
+
+**Socket.IO events emitted:**
+- `poll-vote` — `{ pollId, option, sessionId }`
+- `qa-question` — `{ qaId, text, sessionId }`
+- `qa-upvote` — `{ qaId, questionId, sessionId }`
+- `reaction` — `{ emoji, slideIndex }`
+
+**Socket.IO events received:**
+- `poll-results` — `{ pollId, results, totalVotes }`
+- `qa-questions` — `{ qaId, questions }`
+- `reaction-burst` — `{ emoji, count }`
+
+**Features:**
+- Lazy-loads Socket.IO from CDN
+- Graceful fallback if server is unreachable
+- All click/keydown events stop propagation to avoid interfering with Anna.js navigation
+- Session tracking via `sessionStorage` for duplicate vote prevention
+
+---
+
 ## JavaScript API
 
 Anna.js exposes a comprehensive API through the global `Anna` object. It works as a UMD module (AMD, CommonJS, or browser global).
@@ -1664,6 +1925,7 @@ anna/
 │   ├── init.js                 # Project scaffolding
 │   ├── generate.js             # Markdown → HTML generator
 │   ├── serve.js                # Dev server with live reload
+│   ├── live.js                 # Live server with audience interaction
 │   ├── export.js               # PDF export via Puppeteer
 │   └── ai.js                   # AI generation, refine, translate
 ├── css/
@@ -1699,6 +1961,7 @@ anna/
 │   ├── multiplex/              # Real-time sync (Socket.IO)
 │   ├── notes/                  # Speaker notes
 │   ├── notes-server/           # Server-side notes
+│   ├── live/                   # Real-time polls, Q&A, reactions
 │   ├── playground/             # Live code editor
 │   ├── print-pdf/              # PDF print layout
 │   ├── search/                 # Text search across slides

@@ -7,6 +7,7 @@
  *   anna init [name]              Create a new presentation project
  *   anna generate <file.md>       Generate HTML from Markdown
  *   anna serve <file.md>          Dev server with live reload
+ *   anna live <file.md>           Live server with audience interaction
  *   anna export <file.md> [--pdf] Export presentation to PDF
  *   anna ai <outline.txt|"topic"> Generate slides with AI
  *   anna ai refine <file.md>      Improve an existing presentation
@@ -27,6 +28,10 @@ switch (command) {
 
   case "serve":
     require("./serve").run(args);
+    break;
+
+  case "live":
+    require("./live").run(args);
     break;
 
   case "export":
@@ -67,6 +72,7 @@ function showHelp() {
     anna init [name]                Create a new presentation project
     anna generate <file.md> [opts]  Generate HTML from Markdown
     anna serve <file.md> [opts]     Dev server with live reload
+    anna live <file.md> [opts]      Live server with polls, Q&A, reactions
     anna export <file.md> [--pdf]   Export presentation to PDF
     anna ai <outline|"topic">       Generate slides with AI (Claude)
     anna ai refine <file.md>        Improve an existing presentation
@@ -80,6 +86,10 @@ function showHelp() {
 
   Serve options:
     --port, -p       Port number (default: 3000)
+    --open, -o       Auto-open browser
+
+  Live options:
+    --port, -p       Port number (default: 4000)
     --open, -o       Auto-open browser
 
   General:

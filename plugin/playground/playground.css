@@ -1,168 +1,375 @@
+/* ============================================================
+   Playground 2.0 — Complete Stylesheet
+   ============================================================ */
+
+/* ----- Widget shell (grid layout) ----- */
+
 .playground-widget {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: auto 1fr auto;
-	background: #1a1b26;
-	border-radius: 8px;
-	overflow: hidden;
-	text-align: left;
-	font-size: 0.55em;
-	margin: 0.5em auto;
-	max-width: 95%;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-	min-height: 200px;
-	max-height: 70vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    background: #1a1b26;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+    font-size: 0.55em;
+    margin: 0.5em auto;
+    max-width: 95%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    min-height: 200px;
+    max-height: 70vh;
 }
 
+/* ----- Header bar ----- */
+
 .playground-header {
-	grid-column: 1 / -1;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	background: #2a2b3d;
-	padding: 8px 12px;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #2a2b3d;
+    padding: 8px 12px;
 }
 
 .playground-dot {
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
 }
 
-.playground-dot-red { background: #ff5f57; }
-.playground-dot-yellow { background: #febc2e; }
-.playground-dot-green { background: #28c840; }
+.playground-dot-red {
+    background: #ff5f57;
+}
+.playground-dot-yellow {
+    background: #febc2e;
+}
+.playground-dot-green {
+    background: #28c840;
+}
+
+/* ----- Tabs (single-file & multi-file) ----- */
 
 .playground-tabs {
-	display: flex;
-	gap: 2px;
-	margin-left: 12px;
+    display: flex;
+    gap: 2px;
+    margin-left: 12px;
 }
 
 .playground-tab {
-	padding: 3px 12px;
-	border-radius: 4px 4px 0 0;
-	background: transparent;
-	color: #565f89;
-	border: none;
-	cursor: pointer;
-	font-family: inherit;
-	font-size: 12px;
+    padding: 3px 12px;
+    border-radius: 4px 4px 0 0;
+    background: transparent;
+    color: #565f89;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: color 0.15s ease;
+}
+
+.playground-tab:hover {
+    color: #a9b1d6;
 }
 
 .playground-tab.active {
-	background: #1a1b26;
-	color: #c0caf5;
+    background: #1a1b26;
+    color: #c0caf5;
 }
 
+/* ----- Run button ----- */
+
 .playground-run {
-	margin-left: auto;
-	background: #9ece6a;
-	color: #1a1b26;
-	border: none;
-	padding: 4px 14px;
-	border-radius: 4px;
-	cursor: pointer;
-	font-weight: 600;
-	font-size: 12px;
-	font-family: inherit;
+    margin-left: auto;
+    background: #9ece6a;
+    color: #1a1b26;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    font-family: inherit;
 }
 
 .playground-run:hover {
-	background: #73daca;
+    background: #73daca;
 }
+
+/* ============================================================
+   Editor — Mirror approach (highlight <pre> + transparent
+   <textarea> stacked on top of each other)
+   ============================================================ */
 
 .playground-editor {
-	position: relative;
-	overflow: auto;
+    position: relative;
+    overflow: hidden;
+    min-height: 150px;
 }
 
-.playground-editor textarea {
-	width: 100%;
-	height: 100%;
-	min-height: 150px;
-	background: #1a1b26;
-	color: #c0caf5;
-	border: none;
-	padding: 16px;
-	font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
-	font-size: 14px;
-	line-height: 1.6;
-	resize: none;
-	outline: none;
-	tab-size: 2;
-	box-sizing: border-box;
+/* Shared typographic baseline for both layers */
+.playground-editor textarea,
+.playground-highlight {
+    margin: 0;
+    padding: 16px;
+    font-family:
+        "SF Mono", "Fira Code", "Cascadia Code", Menlo, Monaco, Consolas,
+        monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    tab-size: 2;
+    white-space: pre;
+    word-wrap: normal;
+    overflow-wrap: normal;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
 }
+
+/* Syntax-highlighted backdrop */
+.playground-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1b26;
+    color: #c0caf5;
+    pointer-events: none;
+    overflow: hidden; /* parent container scrolls for both */
+    z-index: 0;
+}
+
+/* Editable textarea on top — text invisible, caret visible */
+.playground-editor textarea {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: transparent;
+    caret-color: #c0caf5;
+    -webkit-text-fill-color: transparent;
+    resize: none;
+    z-index: 1;
+}
+
+.playground-editor textarea::selection {
+    background: rgba(122, 162, 247, 0.3);
+}
+
+.playground-editor textarea::-moz-selection {
+    background: rgba(122, 162, 247, 0.3);
+}
+
+/* ----- Line containers (used for diff highlighting) ----- */
+
+.sh-line {
+    min-height: 1em;
+}
+
+/* ----- Tokyo Night syntax tokens ----- */
+
+.token-keyword {
+    color: #bb9af7;
+}
+.token-string {
+    color: #9ece6a;
+}
+.token-number {
+    color: #ff9e64;
+}
+.token-comment {
+    color: #565f89;
+    font-style: italic;
+}
+.token-operator {
+    color: #89ddff;
+}
+.token-tag {
+    color: #f7768e;
+}
+.token-attr-name {
+    color: #bb9af7;
+}
+.token-attr-value {
+    color: #9ece6a;
+}
+.token-property {
+    color: #7dcfff;
+}
+.token-value {
+    color: #ff9e64;
+}
+.token-selector {
+    color: #bb9af7;
+}
+.token-at-rule {
+    color: #f7768e;
+}
+.token-function {
+    color: #7aa2f7;
+}
+.token-boolean {
+    color: #ff9e64;
+}
+.token-builtin {
+    color: #7dcfff;
+}
+
+/* ============================================================
+   Diff highlighting (step-by-step walkthroughs)
+   ============================================================ */
+
+.diff-added {
+    background: rgba(158, 206, 106, 0.1);
+    border-left: 3px solid #9ece6a;
+    display: block;
+}
+
+.diff-removed {
+    background: rgba(247, 118, 142, 0.1);
+    border-left: 3px solid #f7768e;
+    text-decoration: line-through;
+    display: block;
+}
+
+/* ============================================================
+   Output panel
+   ============================================================ */
 
 .playground-output {
-	border-left: 1px solid #2a2b3d;
-	position: relative;
-	overflow: auto;
+    border-left: 1px solid #2a2b3d;
+    position: relative;
+    overflow: auto;
 }
 
 .playground-output-label {
-	position: absolute;
-	top: 8px;
-	right: 12px;
-	font-size: 10px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #565f89;
-	z-index: 1;
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #565f89;
+    z-index: 1;
 }
 
 .playground-iframe {
-	width: 100%;
-	height: 100%;
-	min-height: 150px;
-	border: none;
-	background: #fff;
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    border: none;
+    background: #fff;
 }
+
+/* ============================================================
+   Console output
+   ============================================================ */
+
+.playground-console {
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    background: #16161e;
+    color: #a9b1d6;
+    padding: 16px;
+    font-family: "SF Mono", "Fira Code", Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow: auto;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.playground-console .log {
+    color: #c0caf5;
+}
+.playground-console .error {
+    color: #f7768e;
+}
+.playground-console .warn {
+    color: #e0af68;
+}
+.playground-console .info {
+    color: #7aa2f7;
+}
+
+/* ----- Console table (console.table — rendered as ASCII box drawing) ----- */
+
+.playground-console .console-table {
+    white-space: pre;
+    margin: 6px 0;
+    color: #7aa2f7;
+}
+
+/* ----- Console group (console.group) ----- */
+
+.console-group {
+    padding-left: 16px;
+}
+
+.console-group-label {
+    font-weight: bold;
+}
+
+/* ----- Return value (← result) ----- */
+
+.console-return {
+    color: #bb9af7;
+    opacity: 0.7;
+}
+
+.console-return::before {
+    content: "\2190\00a0"; /* ← followed by a non-breaking space */
+}
+
+/* ============================================================
+   Status bar
+   ============================================================ */
+
+.playground-status {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 12px;
+    background: #16161e;
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    color: #565f89;
+}
+
+/* ============================================================
+   Language-specific layout overrides
+   ============================================================ */
 
 /* HTML mode: editor full width, output below */
 .playground-widget[data-lang="html"] {
-	grid-template-columns: 1fr;
-	grid-template-rows: auto 1fr 1fr;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr 1fr;
 }
 
-/* Console output (for JS without HTML) */
-.playground-console {
-	width: 100%;
-	height: 100%;
-	min-height: 150px;
-	background: #16161e;
-	color: #a9b1d6;
-	padding: 16px;
-	font-family: 'SF Mono', 'Fira Code', Menlo, monospace;
-	font-size: 13px;
-	line-height: 1.6;
-	overflow: auto;
-	box-sizing: border-box;
-	margin: 0;
+/* CSS mode: same stacked layout as HTML */
+.playground-widget[data-lang="css"] {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr 1fr;
 }
 
-.playground-console .log { color: #c0caf5; }
-.playground-console .error { color: #f7768e; }
-.playground-console .warn { color: #e0af68; }
-.playground-console .info { color: #7aa2f7; }
-
-.playground-status {
-	grid-column: 1 / -1;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 4px 12px;
-	background: #16161e;
-	font-family: system-ui, sans-serif;
-	font-size: 11px;
-	color: #565f89;
+/* Multi-file mode: side-by-side (editor left, output right) */
+.playground-widget[data-lang="multi"] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
 }
 
-/* Print mode */
+/* ============================================================
+   Print
+   ============================================================ */
+
 @media print {
-	.playground-widget {
-		grid-template-columns: 1fr;
-	}
-	.playground-run { display: none; }
+    .playground-widget {
+        grid-template-columns: 1fr;
+    }
+    .playground-run {
+        display: none;
+    }
 }
