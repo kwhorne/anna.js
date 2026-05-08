@@ -13,8 +13,12 @@
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const matter = require('gray-matter');
 const { marked } = require('marked');
+
+const MERMAID_CDN_URL = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+const MERMAID_LOCAL_PATH = path.resolve(__dirname, '..', 'lib', 'js', 'mermaid.min.js');
 
 // --- Public API ---
 
@@ -28,6 +32,8 @@ function run(args) {
 
   Options:
     --watch, -w    Watch for changes and regenerate
+    --offline      Download mermaid.js locally for offline use
+    --pwa          Generate PWA files (manifest.json, sw.js)
     --help, -h     Show this help
 
   Markdown format:
@@ -56,6 +62,8 @@ function run(args) {
 	}
 
 	const watchMode = args.includes('--watch') || args.includes('-w');
+	const offlineMode = args.includes('--offline');
+	const pwaMode = args.includes('--pwa');
 	const fileArgs = args.filter(a => !a.startsWith('-'));
 	const inputFile = fileArgs[0];
 	const outputFile = fileArgs[1] || inputFile.replace(/\.md$/, '.html');
@@ -68,24 +76,99 @@ function run(args) {
 	const annaRoot = resolveAnnaRoot(outputFile);
 
 	function doBuild() {
-		const html = build(inputFile, { annaRoot });
+		const html = build(inputFile, { annaRoot, offline: offlineMode, pwa: pwaMode });
 		fs.writeFileSync(outputFile, html, 'utf-8');
 		console.log(`  \u2713 ${inputFile} \u2192 ${outputFile}`);
+
+		if (pwaMode) {
+			const raw = fs.readFileSync(inputFile, 'utf-8');
+			const { data: config } = matter(raw);
+			const outputDir = path.dirname(path.resolve(outputFile));
+			const theme = config.theme || 'league';
+
+			const manifest = generateManifest(config, theme);
+			fs.writeFileSync(path.join(outputDir, 'manifest.json'), manifest, 'utf-8');
+			console.log(`  \u2713 manifest.json`);
+
+			const sw = generateServiceWorker(annaRoot, {
+				theme,
+				offline: offlineMode,
+				useTerminal: html.includes('plugin/terminal/'),
+				usePlayground: html.includes('plugin/playground/'),
+				useMermaid: html.includes('mermaid'),
+			});
+			fs.writeFileSync(path.join(outputDir, 'sw.js'), sw, 'utf-8');
+			console.log(`  \u2713 sw.js`);
+		}
 	}
 
-	doBuild();
+	if (offlineMode) {
+		downloadMermaid(() => {
+			doBuild();
+			if (watchMode) {
+				startWatch(inputFile, doBuild);
+			}
+		});
+	} else {
+		doBuild();
+		if (watchMode) {
+			startWatch(inputFile, doBuild);
+		}
+	}
+}
 
-	if (watchMode) {
-		console.log(`  Watching ${inputFile} for changes...`);
-		let timeout;
-		fs.watch(inputFile, () => {
-			clearTimeout(timeout);
-			timeout = setTimeout(() => {
-				try { doBuild(); }
-				catch (e) { console.error(`  Error: ${e.message}`); }
-			}, 100);
+function startWatch(inputFile, doBuild) {
+	console.log(`  Watching ${inputFile} for changes...`);
+	let timeout;
+	fs.watch(inputFile, () => {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => {
+			try { doBuild(); }
+			catch (e) { console.error(`  Error: ${e.message}`); }
+		}, 100);
+	});
+}
+
+/**
+ * Download the Mermaid UMD library to the local cache if not already present.
+ */
+function downloadMermaid(callback) {
+	if (fs.existsSync(MERMAID_LOCAL_PATH)) {
+		console.log('  \u2713 Mermaid library already cached');
+		return callback();
+	}
+
+	const dir = path.dirname(MERMAID_LOCAL_PATH);
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+	}
+
+	console.log('  Downloading mermaid.min.js...');
+
+	function doDownload(url) {
+		https.get(url, (res) => {
+			// Follow redirects
+			if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+				return doDownload(res.headers.location);
+			}
+			if (res.statusCode !== 200) {
+				console.error(`  Error: Failed to download mermaid (HTTP ${res.statusCode})`);
+				process.exit(1);
+			}
+			const chunks = [];
+			res.on('data', (chunk) => chunks.push(chunk));
+			res.on('end', () => {
+				fs.writeFileSync(MERMAID_LOCAL_PATH, Buffer.concat(chunks));
+				console.log('  \u2713 Mermaid library downloaded');
+				callback();
+			});
+		}).on('error', (err) => {
+			console.error(`  Error: Failed to download mermaid: ${err.message}`);
+			process.exit(1);
 		});
 	}
+
+	doDownload(MERMAID_CDN_URL);
 }
 
 /**
@@ -96,7 +179,7 @@ function build(inputFile, opts = {}) {
 	const raw = fs.readFileSync(inputFile, 'utf-8');
 	const { data: config, content } = matter(raw);
 	const slides = parseSlides(content);
-	return generateHTML(slides, config, annaRoot);
+	return generateHTML(slides, config, annaRoot, { offline: opts.offline, pwa: opts.pwa });
 }
 
 function resolveAnnaRoot(outputFile) {
@@ -230,7 +313,25 @@ function hasMermaidBlocks(slides) {
 
 const DARK_THEMES = ['black', 'night', 'moon', 'blood', 'league'];
 
-function generateHTML(slides, config, annaRoot) {
+const THEME_COLORS = {
+	black: '#191919',
+	white: '#fff',
+	league: '#2b5b84',
+	beige: '#f7f3de',
+	night: '#111',
+	moon: '#002b36',
+	blood: '#222',
+	serif: '#f0edde',
+	simple: '#fff',
+	solarized: '#fdf6e3',
+	sky: '#f7fbfc',
+};
+
+function generateHTML(slides, config, annaRoot, extraOpts) {
+	const opts = extraOpts || {};
+	const offline = opts.offline || false;
+	const pwa = opts.pwa || false;
+
 	const theme = config.theme || 'league';
 	const transition = config.transition || 'slide';
 	const title = config.title || 'Anna.js Presentation';
@@ -251,6 +352,7 @@ function generateHTML(slides, config, annaRoot) {
 	const useMermaid = hasMermaidBlocks(slides);
 	const usePlayground = hasPlaygroundBlocks(slides);
 	const mermaidTheme = DARK_THEMES.includes(theme) ? 'dark' : 'default';
+	const themeColor = THEME_COLORS[theme] || '#222';
 
 	const slidesHTML = slides.map(slide => {
 		if (slide.vertical) {
@@ -262,6 +364,28 @@ function generateHTML(slides, config, annaRoot) {
 
 	const p = annaRoot;
 
+	// Mermaid script block
+	let mermaidBlock = '';
+	if (useMermaid) {
+		if (offline) {
+			mermaidBlock = `\t\t<script src="${p}/lib/js/mermaid.min.js"></script>\n\t\t<script>mermaid.initialize({ startOnLoad: true, theme: '${mermaidTheme}' });</script>\n`;
+		} else {
+			mermaidBlock = `\t\t<script type="module">\n\t\t\timport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';\n\t\t\tmermaid.initialize({ startOnLoad: true, theme: '${mermaidTheme}' });\n\t\t</script>\n`;
+		}
+	}
+
+	// PWA head tags
+	let pwaHead = '';
+	if (pwa) {
+		pwaHead = `\t\t<meta name="theme-color" content="${themeColor}">\n\t\t<link rel="manifest" href="manifest.json">\n`;
+	}
+
+	// PWA service worker registration script
+	let pwaScript = '';
+	if (pwa) {
+		pwaScript = `\n\t\t<script>\n\t\t\tif ('serviceWorker' in navigator) {\n\t\t\t\tnavigator.serviceWorker.register('sw.js');\n\t\t\t}\n\t\t</script>`;
+	}
+
 	return `<!doctype html>
 <html>
 \t<head>
@@ -269,7 +393,7 @@ function generateHTML(slides, config, annaRoot) {
 \t\t<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 \t\t<title>${esc(title)}</title>
-${author ? `\t\t<meta name="author" content="${esc(author)}">\n` : ''}
+${author ? `\t\t<meta name="author" content="${esc(author)}">\n` : ''}${pwaHead}
 \t\t<link rel="stylesheet" href="${p}/css/reset.css">
 \t\t<link rel="stylesheet" href="${p}/css/anna.css">
 \t\t<link rel="stylesheet" href="${p}/css/theme/${theme}.css">
@@ -283,10 +407,7 @@ ${slidesHTML}
 \t\t</div>
 
 \t\t<script src="${p}/js/anna.js"></script>
-${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}${usePlayground ? `\t\t<script src="${p}/plugin/playground/playground.js"></script>\n` : ''}${useMermaid ? `\t\t<script type="module">
-\t\t\timport mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-\t\t\tmermaid.initialize({ startOnLoad: true, theme: '${mermaidTheme}' });
-\t\t</script>\n` : ''}
+${useTerminal ? `\t\t<script src="${p}/plugin/terminal/terminal.js"></script>\n` : ''}${usePlayground ? `\t\t<script src="${p}/plugin/playground/playground.js"></script>\n` : ''}${mermaidBlock}
 \t\t<script>
 \t\t\tAnna.initialize({
 ${Object.entries(initOptions).map(([k, v]) => `\t\t\t\t${k}: ${JSON.stringify(v)}`).join(',\n')},
@@ -297,9 +418,88 @@ ${Object.entries(initOptions).map(([k, v]) => `\t\t\t\t${k}: ${JSON.stringify(v)
 \t\t\t\t\t{ src: '${p}/plugin/highlight/highlight.js', async: true }
 \t\t\t\t]
 \t\t\t});
-\t\t</script>
+\t\t</script>${pwaScript}
 \t</body>
 </html>
+`;
+}
+
+// --- PWA Generation ---
+
+function generateManifest(config, theme) {
+	const title = config.title || 'Anna.js Presentation';
+	const themeColor = THEME_COLORS[theme] || '#222';
+
+	const manifest = {
+		name: title,
+		short_name: title.length > 12 ? title.substring(0, 12) + '...' : title,
+		start_url: './',
+		display: 'standalone',
+		background_color: themeColor,
+		theme_color: themeColor,
+		description: config.description || title,
+	};
+
+	return JSON.stringify(manifest, null, '\t');
+}
+
+function generateServiceWorker(annaRoot, options) {
+	const p = annaRoot;
+	const cacheFiles = [
+		"'./'",
+		`'${p}/css/reset.css'`,
+		`'${p}/css/anna.css'`,
+		`'${p}/css/theme/${options.theme}.css'`,
+		`'${p}/lib/css/monokai.css'`,
+		`'${p}/js/anna.js'`,
+		`'${p}/plugin/markdown/marked.js'`,
+		`'${p}/plugin/markdown/markdown.js'`,
+		`'${p}/plugin/notes/notes.js'`,
+		`'${p}/plugin/highlight/highlight.js'`,
+	];
+
+	if (options.useTerminal) {
+		cacheFiles.push(`'${p}/plugin/terminal/terminal.css'`);
+		cacheFiles.push(`'${p}/plugin/terminal/terminal.js'`);
+	}
+
+	if (options.usePlayground) {
+		cacheFiles.push(`'${p}/plugin/playground/playground.css'`);
+		cacheFiles.push(`'${p}/plugin/playground/playground.js'`);
+	}
+
+	if (options.useMermaid) {
+		cacheFiles.push(`'${p}/plugin/mermaid/mermaid.css'`);
+		if (options.offline) {
+			cacheFiles.push(`'${p}/lib/js/mermaid.min.js'`);
+		}
+	}
+
+	return `// Anna.js Presentation Service Worker
+const CACHE_NAME = 'anna-presentation-v1';
+const ASSETS = [
+\t${cacheFiles.join(',\n\t')}
+];
+
+self.addEventListener('install', (event) => {
+\tevent.waitUntil(
+\t\tcaches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+\t);
+});
+
+self.addEventListener('activate', (event) => {
+\tevent.waitUntil(
+\t\tcaches.keys().then((keys) =>
+\t\t\tPromise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+\t\t)
+\t);
+});
+
+self.addEventListener('fetch', (event) => {
+\tevent.respondWith(
+\t\tcaches.match(event.request).then((cached) => cached || fetch(event.request))
+\t);
+});
 `;
 }
 

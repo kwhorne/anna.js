@@ -1,6 +1,6 @@
 # Anna.js
 
-A Markdown-first presentation framework for the web. Terminal animations, live code, Mermaid diagrams, AI generation, embed mode, and 12 themes.
+A Markdown-first presentation framework for the web. Terminal animations, live code, Mermaid diagrams, AI generation, offline PWA mode, dev server with live reload, and 12 themes.
 
 ## Installation
 
@@ -14,7 +14,10 @@ npm install -g anna.js
 anna init my-presentation          # scaffold a new project
 anna generate slides.md            # generate HTML from Markdown
 anna generate slides.md --watch    # regenerate on changes
+anna serve slides.md               # dev server with live reload
 anna ai "Intro to Kubernetes"      # AI-generated presentation
+anna ai refine slides.md           # improve existing slides with AI
+anna ai translate slides.md --lang en  # translate to another language
 anna export slides.md              # export to PDF
 ```
 
@@ -157,7 +160,19 @@ sequenceDiagram
 ```
 ````
 
-Requires internet (Mermaid loaded from CDN).
+Mermaid is loaded from CDN by default. Use `--offline` to bundle it locally (see [Offline & PWA](#offline--pwa)).
+
+## Dev Server
+
+Live-reloading dev server — edit your Markdown and see changes instantly:
+
+```bash
+anna serve slides.md               # start on port 3000
+anna serve slides.md --port 8080   # custom port
+anna serve slides.md --open        # auto-open browser
+```
+
+Uses Server-Sent Events for reload — no browser extension needed. The server watches your `.md` file, rebuilds on every save, and pushes a reload signal to all connected browsers.
 
 ## AI Generation
 
@@ -166,9 +181,48 @@ Generate a complete presentation from an outline or topic:
 ```bash
 anna ai outline.txt
 anna ai "Introduction to Kubernetes" --theme moon
+anna ai notes.txt --lang no
 ```
 
 Uses the Claude API. Requires `ANTHROPIC_API_KEY` and `npm install @anthropic-ai/sdk`.
+
+### AI Refine
+
+Improve an existing presentation — better visual balance, speaker notes, fragment pacing, and theme fit:
+
+```bash
+anna ai refine slides.md                  # → slides-refined.md
+anna ai refine slides.md -o slides-v2.md  # custom output
+```
+
+### AI Translate
+
+Translate a presentation while preserving all Markdown/Anna.js syntax:
+
+```bash
+anna ai translate slides.md --lang en     # → slides-en.md
+anna ai translate slides.md --lang ja -o slides-japanese.md
+```
+
+Translates slide content, speaker notes, and Mermaid diagram labels. Keeps code blocks, terminal commands, and technical terms intact.
+
+## Offline & PWA
+
+Bundle Mermaid locally and generate a Progressive Web App for fully offline presentations:
+
+```bash
+anna generate slides.md --offline          # download & bundle mermaid.js locally
+anna generate slides.md --pwa             # generate manifest.json + service worker
+anna generate slides.md --offline --pwa   # full offline installable presentation
+```
+
+`--offline` downloads `mermaid.min.js` once to `lib/js/` and references it locally instead of the CDN. Perfect for conferences and classrooms without reliable WiFi.
+
+`--pwa` generates:
+- `manifest.json` — title, theme color, and display mode from your frontmatter
+- `sw.js` — service worker with cache-first strategy, pre-caching all presentation assets
+
+Combine both flags for a presentation that can be installed as a standalone app and works completely offline.
 
 ## Speaker View
 
