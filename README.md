@@ -5,7 +5,7 @@ A Markdown-first presentation framework for the web. Terminal animations, live c
 ## Installation
 
 ```bash
-npm install -g anna.js
+npm install -g @kwhorne/anna.js
 ```
 
 ## Quick Start

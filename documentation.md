@@ -87,13 +87,13 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
 Install Anna.js globally via npm:
 
 ```bash
-npm install -g anna.js
+npm install -g @kwhorne/anna.js
 ```
 
 Or use it locally in a project:
 
 ```bash
-npm install anna.js
+npm install @kwhorne/anna.js
 npx anna --help
 ```
 
