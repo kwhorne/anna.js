@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anna.js — Presentations, written in Markdown.</title>
+  <meta name="description" content="Anna.js is an open-source Markdown presentation framework with terminal animations, live code, AI generation, audience interaction, 11 themes, and one CLI command." />
+  <meta name="theme-color" content="#0f0f1a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #e0e0f0;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== Utility ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .muted { color: #8888aa; }
+
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger children */
+    .fade-in-up.visible .stagger { opacity: 1; transform: translateY(0); }
+    .stagger {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ===== Navigation ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(15, 15, 26, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(42, 43, 61, 0.5);
+      transition: background 0.3s;
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav-logo {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #7aa2f7 0%, #bb9af7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #8888aa;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #e0e0f0; }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      background: #7aa2f7;
+      color: #0f0f1a !important;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .nav-cta:hover {
+      background: #88b4ff;
+      transform: translateY(-1px);
+    }
+
+    .nav-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid #2a2b3d;
+      color: #e0e0f0 !important;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .nav-github:hover {
+      border-color: #7aa2f7;
+      background: rgba(122, 162, 247, 0.08);
+    }
+
+    .nav-github svg { width: 18px; height: 18px; fill: #e0e0f0; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #e0e0f0;
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+
+      .nav-links {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: rgba(15, 15, 26, 0.97);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 24px;
+        gap: 20px;
+        border-bottom: 1px solid #2a2b3d;
+        transform: translateY(-120%);
+        opacity: 0;
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s;
+        pointer-events: none;
+      }
+
+      .nav-links.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .nav-links a { font-size: 1rem; }
+    }
+
+    /* ===== Hero Section ===== */
+    .hero {
+      padding: 140px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(122, 162, 247, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .hero-headline {
+      font-size: 3.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .hero-headline .gradient-text {
+      background: linear-gradient(135deg, #7aa2f7 0%, #bb9af7 50%, #9ece6a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: #8888aa;
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 520px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: #7aa2f7;
+      color: #0f0f1a;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #88b4ff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(122, 162, 247, 0.25);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: transparent;
+      color: #e0e0f0;
+      border: 1px solid #2a2b3d;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+
+    .btn-outline:hover {
+      border-color: #7aa2f7;
+      background: rgba(122, 162, 247, 0.06);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline svg { width: 20px; height: 20px; fill: #e0e0f0; }
+
+    /* Copy pill */
+    .copy-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #141425;
+      border: 1px solid #2a2b3d;
+      border-radius: 10px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      max-width: 100%;
+    }
+
+    .copy-pill:hover {
+      border-color: #7aa2f7;
+      background: #1a1b2e;
+    }
+
+    .copy-pill code {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      color: #9ece6a;
+      white-space: nowrap;
+    }
+
+    .copy-pill .copy-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: #8888aa;
+      transition: color 0.2s;
+    }
+
+    .copy-pill:hover .copy-icon { color: #e0e0f0; }
+
+    .copy-tooltip {
+      position: absolute;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.9);
+      background: #7aa2f7;
+      color: #0f0f1a;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-tooltip.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* Hero deck */
+    .hero-deck-wrapper {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #2a2b3d;
+      background: #141425;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(122, 162, 247, 0.06);
+    }
+
+    .hero-deck-wrapper anna-deck {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        text-align: center;
+      }
+
+      .hero-headline { font-size: 2.6rem; }
+      .hero-sub { margin-left: auto; margin-right: auto; }
+      .hero-buttons { justify-content: center; }
+      .copy-pill { margin: 0 auto; }
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 110px 0 60px; }
+      .hero-headline { font-size: 2rem; }
+      .hero-sub { font-size: 1rem; }
+      .hero-buttons { flex-direction: column; align-items: stretch; }
+      .btn-primary, .btn-outline { justify-content: center; }
+    }
+
+    /* ===== Section Base ===== */
+    .section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .section-alt { background: #141425; }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      font-size: 1.1rem;
+      color: #8888aa;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      .section { padding: 72px 0; }
+      .section-header h2 { font-size: 1.85rem; }
+      .section-header p { font-size: 1rem; }
+    }
+
+    /* ===== Features Grid ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: #1a1b2e;
+      border: 1px solid #2a2b3d;
+      border-radius: 14px;
+      padding: 28px 24px;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.25s,
+                  box-shadow 0.25s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(122, 162, 247, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      font-size: 2em;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: #8888aa;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1024px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .features-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== Code Example ===== */
+    .code-example-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: stretch;
+    }
+
+    .code-block-wrapper {
+      background: #141425;
+      border: 1px solid #2a2b3d;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: rgba(20, 20, 37, 0.8);
+      border-bottom: 1px solid #2a2b3d;
+    }
+
+    .code-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .code-dot.red { background: #ff5f57; }
+    .code-dot.yellow { background: #ffbd2e; }
+    .code-dot.green { background: #28ca41; }
+
+    .code-block-filename {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #8888aa;
+      margin-left: 8px;
+    }
+
+    .code-block-body {
+      padding: 20px;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    .code-block-body pre {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      white-space: pre;
+      color: #e0e0f0;
+    }
+
+    /* Syntax colors */
+    .syn-keyword { color: #bb9af7; }
+    .syn-string { color: #9ece6a; }
+    .syn-comment { color: #565f89; font-style: italic; }
+    .syn-heading { color: #7aa2f7; font-weight: 700; }
+    .syn-bullet { color: #ff9e64; }
+    .syn-separator { color: #565f89; }
+
+    .code-deck-wrapper {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #2a2b3d;
+      background: #141425;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code-deck-wrapper anna-deck {
+      display: block;
+      width: 100%;
+      flex: 1;
+      min-height: 340px;
+    }
+
+    @media (max-width: 1024px) {
+      .code-example-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== CLI Showcase ===== */
+    .terminal-window {
+      background: #141425;
+      border: 1px solid #2a2b3d;
+      border-radius: 14px;
+      overflow: hidden;
+      max-width: 720px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: rgba(20, 20, 37, 0.8);
+      border-bottom: 1px solid #2a2b3d;
+    }
+
+    .terminal-title {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #8888aa;
+      margin-left: 8px;
+    }
+
+    .terminal-body {
+      padding: 24px;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .terminal-body pre { white-space: pre; }
+
+    .term-prompt { color: #7aa2f7; }
+    .term-cmd { color: #e0e0f0; }
+    .term-flag { color: #bb9af7; }
+    .term-arg { color: #9ece6a; }
+    .term-success { color: #9ece6a; }
+    .term-url { color: #7aa2f7; text-decoration: underline; text-decoration-color: rgba(122,162,247,0.3); }
+    .term-blank { display: block; height: 0.9em; }
+
+    /* ===== Pricing ===== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: #1a1b2e;
+      border: 1px solid #2a2b3d;
+      border-radius: 16px;
+      padding: 36px 28px;
+      position: relative;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .pricing-card.featured {
+      border-color: rgba(122, 162, 247, 0.4);
+      box-shadow: 0 0 0 1px rgba(122, 162, 247, 0.1), 0 12px 40px rgba(122, 162, 247, 0.08);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: linear-gradient(135deg, #7aa2f7, #bb9af7);
+      color: #0f0f1a;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pricing-soon {
+      display: inline-block;
+      background: rgba(122, 162, 247, 0.12);
+      color: #7aa2f7;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .pricing-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin: 12px 0 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #8888aa;
+    }
+
+    .pricing-desc {
+      font-size: 0.85rem;
+      color: #8888aa;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .pricing-features li {
+      font-size: 0.9rem;
+      padding: 6px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #c0c0d0;
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: #9ece6a;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .pricing-features li.section-label {
+      color: #8888aa;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-top: 10px;
+    }
+
+    .pricing-features li.section-label::before { content: ''; }
+
+    .pricing-btn {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .pricing-btn-primary {
+      background: #7aa2f7;
+      color: #0f0f1a;
+    }
+
+    .pricing-btn-primary:hover {
+      background: #88b4ff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(122, 162, 247, 0.25);
+    }
+
+    .pricing-btn-muted {
+      background: #2a2b3d;
+      color: #8888aa;
+      cursor: default;
+    }
+
+    @media (max-width: 1024px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+    }
+
+    /* ===== Getting Started ===== */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 36px;
+      left: calc(33.33% / 2 + 36px);
+      right: calc(33.33% / 2 + 36px);
+      height: 2px;
+      background: linear-gradient(90deg, #7aa2f7, #bb9af7, #9ece6a);
+      opacity: 0.3;
+    }
+
+    .step-card {
+      text-align: center;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(122, 162, 247, 0.15), rgba(187, 154, 247, 0.15));
+      border: 2px solid rgba(122, 162, 247, 0.3);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #7aa2f7;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .step-code {
+      background: #141425;
+      border: 1px solid #2a2b3d;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      color: #9ece6a;
+      display: inline-block;
+      max-width: 100%;
+      text-align: left;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 768px) {
+      .steps-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+      .steps-grid::before { display: none; }
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      border-top: 1px solid #2a2b3d;
+      padding: 48px 0 36px;
+      background: #0f0f1a;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7aa2f7, #bb9af7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 0.85rem;
+      color: #8888aa;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: #e0e0f0; }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(42, 43, 61, 0.4);
+    }
+
+    .footer-bottom p {
+      font-size: 0.8rem;
+      color: #565f89;
+    }
+
+    .footer-bottom a { color: #7aa2f7; }
+    .footer-bottom a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+
+    /* ===== Scrollbar ===== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f0f1a; }
+    ::-webkit-scrollbar-thumb { background: #2a2b3d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3b5d; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="nav-logo">Anna.js</a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="https://github.com/kwhorne/anna.js#readme" target="_blank" rel="noopener">Docs</a></li>
+        <li>
+          <a href="https://github.com/kwhorne/anna.js" target="_blank" rel="noopener" class="nav-github">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+            Star
+          </a>
+        </li>
+        <li><a href="#getting-started" class="nav-cta">Get Started</a></li>
+      </ul>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="fade-in-up">
+          <h1 class="hero-headline">
+            Presentations,<br /><span class="gradient-text">written in Markdown.</span>
+          </h1>
+          <p class="hero-sub">
+            Terminal animations. Live code. AI generation. Audience interaction. 11 themes. One CLI command.
+          </p>
+          <div class="hero-buttons">
+            <a href="#getting-started" class="btn-primary">Get Started</a>
+            <a href="https://github.com/kwhorne/anna.js" target="_blank" rel="noopener" class="btn-outline">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+              View on GitHub
+            </a>
+          </div>
+          <div class="copy-pill" id="copyPill" title="Click to copy">
+            <code>npm install -g anna.js</code>
+            <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            <span class="copy-tooltip" id="copyTooltip">Copied!</span>
+          </div>
+        </div>
+
+        <div class="hero-deck-wrapper fade-in-up" style="transition-delay: 0.15s;">
+          <anna-deck theme="moon" style="display:block; width:100%; aspect-ratio:16/10;">
+            <anna-slide>
+# Hello, Anna.js
+### Presentations, written in Markdown
+            </anna-slide>
+            <anna-slide>
+## Write in Markdown
+
+- Simple, familiar syntax
+- Fragments &amp; animations built-in
+- No complex GUI to learn
+- Version control friendly
+            </anna-slide>
+            <anna-slide>
+## 11 Beautiful Themes
+
+From **Tokyo Night** to **Light Minimal** — find the perfect look for every talk.
+            </anna-slide>
+            <anna-slide>
+## AI Powered
+
+- **Generate** entire decks from a topic
+- **Refine** existing slides with feedback
+- **Translate** to any language instantly
+            </anna-slide>
+            <anna-slide>
+## Get Started
+
+```
+npm install -g anna.js
+anna init my-talk
+anna serve slides.md --open
+```
+            </anna-slide>
+          </anna-deck>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES ===== -->
+  <section class="section section-alt" id="features">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>Everything you need</h2>
+        <p>From Markdown to beautiful, interactive presentations in seconds.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">✍️</span>
+          <h3>Markdown First</h3>
+          <p>Write slides in pure Markdown. No GUI needed.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🤖</span>
+          <h3>AI Powered</h3>
+          <p>Generate, refine, and translate with Claude AI.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🖥️</span>
+          <h3>Terminal Animations</h3>
+          <p>Typed commands with animated output, right in your slides.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🎮</span>
+          <h3>Live Code</h3>
+          <p>Interactive playground with syntax highlighting.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">📊</span>
+          <h3>Mermaid Diagrams</h3>
+          <p>Flowcharts, sequences, gantt charts — all inline.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">👥</span>
+          <h3>Audience Interaction</h3>
+          <p>Live polls, Q&amp;A, and emoji reactions.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">📱</span>
+          <h3>Offline PWA</h3>
+          <p>Install as an app, works without internet.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🧩</span>
+          <h3>Components</h3>
+          <p>8 reusable layouts: columns, timeline, cards, and more.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🎨</span>
+          <h3>11 Themes</h3>
+          <p>Dark and light themes with full customization.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🔌</span>
+          <h3>Plugin System</h3>
+          <p>Terminal, playground, mermaid, math, search, zoom.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">📤</span>
+          <h3>Export</h3>
+          <p>PDF export with faithful rendering.</p>
+        </div>
+        <div class="feature-card fade-in-up">
+          <span class="feature-icon">🌐</span>
+          <h3>Embed Mode</h3>
+          <p>Web components for blogs and documentation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CODE EXAMPLE ===== -->
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>Simple by design</h2>
+        <p>Write your slides in Markdown, get a polished presentation instantly.</p>
+      </div>
+
+      <div class="code-example-grid fade-in-up">
+        <div class="code-block-wrapper">
+          <div class="code-block-header">
+            <span class="code-dot red"></span>
+            <span class="code-dot yellow"></span>
+            <span class="code-dot green"></span>
+            <span class="code-block-filename">slides.md</span>
+          </div>
+          <div class="code-block-body">
+            <pre><span class="syn-separator">---</span>
+<span class="syn-keyword">title</span>: <span class="syn-string">My Talk</span>
+<span class="syn-keyword">theme</span>: <span class="syn-string">moon</span>
+<span class="syn-separator">---</span>
+
+<span class="syn-heading"># Welcome</span>
+
+<span class="syn-separator">---</span>
+
+<span class="syn-heading">## Key Points</span>
+
+<span class="syn-comment">&lt;!-- .fragments --&gt;</span>
+<span class="syn-bullet">-</span> Simple Markdown syntax
+<span class="syn-bullet">-</span> Beautiful out of the box
+<span class="syn-bullet">-</span> Fully interactive
+
+<span class="syn-separator">---</span>
+
+<span class="syn-heading"># Thank You! 🎉</span></pre>
+          </div>
+        </div>
+
+        <div class="code-deck-wrapper">
+          <anna-deck theme="moon" style="display:block; width:100%; aspect-ratio:16/10;">
+            <anna-slide>
+# Welcome
+            </anna-slide>
+            <anna-slide>
+## Key Points
+
+- Simple Markdown syntax
+- Beautiful out of the box
+- Fully interactive
+            </anna-slide>
+            <anna-slide>
+# Thank You! 🎉
+            </anna-slide>
+          </anna-deck>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CLI SHOWCASE ===== -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>One tool, endless possibilities</h2>
+        <p>The Anna CLI handles everything — from scaffolding to live presenting.</p>
+      </div>
+
+      <div class="terminal-window fade-in-up">
+        <div class="terminal-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot yellow"></span>
+          <span class="code-dot green"></span>
+          <span class="terminal-title">Terminal</span>
+        </div>
+        <div class="terminal-body">
+          <pre><span class="term-prompt">$</span> <span class="term-cmd">anna init</span> <span class="term-arg">my-talk</span>
+  <span class="term-success">✓</span> Created slides.md
+  <span class="term-success">✓</span> Generated slides.html
+<span class="term-blank"></span>
+<span class="term-prompt">$</span> <span class="term-cmd">anna serve</span> <span class="term-arg">slides.md</span> <span class="term-flag">--open</span>
+  <span class="term-success">✓</span> Serving on <span class="term-url">http://localhost:3000</span>
+  <span class="term-success">✓</span> Live reload enabled
+<span class="term-blank"></span>
+<span class="term-prompt">$</span> <span class="term-cmd">anna ai</span> <span class="term-arg">"Intro to Kubernetes"</span>
+  <span class="term-success">✓</span> intro-to-kubernetes.md
+  <span class="term-success">✓</span> intro-to-kubernetes.html
+<span class="term-blank"></span>
+<span class="term-prompt">$</span> <span class="term-cmd">anna live</span> <span class="term-arg">slides.md</span>
+  <span class="term-success">✓</span> Presenter:  <span class="term-url">http://localhost:4000</span>
+  <span class="term-success">✓</span> Audience:   <span class="term-url">http://localhost:4000/audience</span>
+  <span class="term-success">✓</span> QR Code:    <span class="term-url">http://localhost:4000/qr</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRICING ===== -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>Start free, scale when ready</h2>
+        <p>Anna.js is open source and always will be.</p>
+      </div>
+
+      <div class="pricing-grid fade-in-up">
+        <!-- Free -->
+        <div class="pricing-card">
+          <h3>Open Source</h3>
+          <div class="pricing-price">Free <span>forever</span></div>
+          <p class="pricing-desc">Everything you need to create stunning presentations.</p>
+          <ul class="pricing-features">
+            <li>Full CLI with all commands</li>
+            <li>All 11 themes</li>
+            <li>All plugins &amp; components</li>
+            <li>PDF export</li>
+            <li>Offline PWA mode</li>
+            <li>AI generation (bring your own API key)</li>
+          </ul>
+          <a href="#getting-started" class="pricing-btn pricing-btn-primary">Get Started</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card featured">
+          <span class="pricing-badge">Popular</span>
+          <h3>Pro <span class="pricing-soon">Coming soon</span></h3>
+          <div class="pricing-price">$8 <span>/month</span></div>
+          <p class="pricing-desc">For professionals who want hosting and premium features.</p>
+          <ul class="pricing-features">
+            <li class="section-label">Everything in Free, plus:</li>
+            <li>Hosted presentations with custom URLs</li>
+            <li>AI credits included (no API key needed)</li>
+            <li>Premium themes</li>
+            <li>Component packs (Pitch Deck, Workshop, Corporate)</li>
+            <li>Remove "Made with Anna.js" badge</li>
+            <li>Priority support</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-muted" disabled>Join Waitlist</button>
+        </div>
+
+        <!-- Team -->
+        <div class="pricing-card">
+          <h3>Team <span class="pricing-soon">Coming soon</span></h3>
+          <div class="pricing-price">$15 <span>/user/month</span></div>
+          <p class="pricing-desc">For teams that present, collaborate, and engage audiences.</p>
+          <ul class="pricing-features">
+            <li class="section-label">Everything in Pro, plus:</li>
+            <li>Anna Live with analytics dashboard</li>
+            <li>Shared component library</li>
+            <li>Team collaboration</li>
+            <li>SSO &amp; admin controls</li>
+            <li>Export poll results &amp; Q&amp;A to CSV</li>
+            <li>Custom branding</li>
+          </ul>
+          <button class="pricing-btn pricing-btn-muted" disabled>Join Waitlist</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GETTING STARTED ===== -->
+  <section class="section section-alt" id="getting-started">
+    <div class="container">
+      <div class="section-header fade-in-up">
+        <h2>Ready in 30 seconds</h2>
+        <p>Three commands is all it takes.</p>
+      </div>
+
+      <div class="steps-grid fade-in-up">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Install</h3>
+          <div class="step-code">npm install -g anna.js</div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Create</h3>
+          <div class="step-code">anna init my-talk</div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Present</h3>
+          <div class="step-code">anna serve slides.md --open</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <a href="#" class="footer-logo">Anna.js</a>
+        <ul class="footer-links">
+          <li><a href="https://github.com/kwhorne/anna.js#readme" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://github.com/kwhorne/anna.js" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://www.npmjs.com/package/anna.js" target="_blank" rel="noopener">npm</a></li>
+          <li><a href="https://github.com/kwhorne/anna.js/blob/main/LICENSE" target="_blank" rel="noopener">License (MIT)</a></li>
+        </ul>
+      </div>
+      <div class="footer-bottom">
+        <p>Made with ❤️ by <a href="https://github.com/kwhorne" target="_blank" rel="noopener">Knut W. Horne</a></p>
+        <p style="margin-top: 6px;">&copy; 2025 Anna.js. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== Anna.js Embed Script ===== -->
+  <script src="https://unpkg.com/anna.js/js/anna-embed.js"></script>
+
+  <!-- ===== Minimal JavaScript ===== -->
+  <script>
+    /* --- Mobile Nav Toggle --- */
+    (function () {
+      const hamburger = document.getElementById('hamburger');
+      const navLinks = document.getElementById('navLinks');
+
+      hamburger.addEventListener('click', function () {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('open');
+      });
+
+      /* Close mobile nav when a link is clicked */
+      navLinks.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          hamburger.classList.remove('active');
+          navLinks.classList.remove('open');
+        });
+      });
+    })();
+
+    /* --- Smooth Scroll for Anchor Links --- */
+    (function () {
+      document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+        anchor.addEventListener('click', function (e) {
+          var href = this.getAttribute('href');
+          if (href === '#') return;
+          var target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            var offset = 80; /* navbar height */
+            var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+          }
+        });
+      });
+    })();
+
+    /* --- Copy npm Command --- */
+    (function () {
+      var pill = document.getElementById('copyPill');
+      var tooltip = document.getElementById('copyTooltip');
+      var timeout;
+
+      pill.addEventListener('click', function () {
+        var text = 'npm install -g anna.js';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text);
+        } else {
+          /* Fallback */
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+
+        tooltip.classList.add('show');
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+          tooltip.classList.remove('show');
+        }, 1800);
+      });
+    })();
+
+    /* --- Fade-in on Scroll (IntersectionObserver) --- */
+    (function () {
+      var elements = document.querySelectorAll('.fade-in-up');
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.08,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        elements.forEach(function (el) {
+          observer.observe(el);
+        });
+      } else {
+        /* Fallback: just show everything */
+        elements.forEach(function (el) {
+          el.classList.add('visible');
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>

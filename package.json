@@ -1,7 +1,7 @@
 {
   "name": "anna.js",
-  "version": "1.0.0",
-  "description": "Anna - The HTML Presentation Framework. Write slides in Markdown, generate beautiful presentations.",
+  "version": "1.1.0",
+    "description": "Anna - The HTML Presentation Framework. Write slides in Markdown, generate beautiful presentations.",
   "homepage": "https://github.com/kwhorne/anna.js",
   "main": "js/anna.js",
   "bin": {
