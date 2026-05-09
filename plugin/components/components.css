@@ -1,0 +1,410 @@
+/* ============================================================
+   Anna.js — Built-in Component Layouts
+   Tokyo Night color scheme
+   ============================================================
+
+   Palette reference (shared with terminal & playground plugins):
+     background     #1a1b26
+     surface        #16161e
+     border         #2a2b3d
+     text           #c0caf5
+     text-muted     #a9b1d6
+     comment        #565f89
+     blue           #7aa2f7
+     cyan           #7dcfff
+     green          #9ece6a
+     purple         #bb9af7
+     orange         #ff9e64
+     red            #f7768e
+     yellow         #e0af68
+
+   All components live inside `.anna .slides section`, so every
+   selector is scoped to that context.
+   ============================================================ */
+
+
+/* ============================================================
+   1. Columns — Multi-column Layout
+   ============================================================ */
+
+.anna .slides section .anna-columns {
+    display: flex;
+    gap: 2em;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+}
+
+.anna .slides section .anna-col {
+    flex: 1;
+    min-width: 0; /* prevent flex overflow */
+}
+
+
+/* ============================================================
+   2. Comparison — Side-by-side Pros / Cons
+   ============================================================ */
+
+.anna .slides section .anna-comparison {
+    display: flex;
+    gap: 1.5em;
+    width: 100%;
+}
+
+.anna .slides section .anna-comparison-side {
+    flex: 1;
+    background: #1a1b26;
+    border-radius: 8px;
+    padding: 1.2em 1.4em;
+    border: 1px solid #2a2b3d;
+}
+
+/* Pros — green accent */
+.anna .slides section .anna-comparison-pros {
+    border-left: 3px solid #9ece6a;
+}
+
+/* Cons — red accent */
+.anna .slides section .anna-comparison-cons {
+    border-left: 3px solid #f7768e;
+}
+
+.anna .slides section .anna-comparison-heading {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 0.8em;
+    color: #a9b1d6;
+}
+
+.anna .slides section .anna-comparison-pros .anna-comparison-heading span {
+    color: #9ece6a;
+}
+
+.anna .slides section .anna-comparison-cons .anna-comparison-heading span {
+    color: #f7768e;
+}
+
+.anna .slides section .anna-comparison-side ul,
+.anna .slides section .anna-comparison-side ol {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+.anna .slides section .anna-comparison-side li {
+    font-size: 0.8em;
+    line-height: 1.6;
+    color: #a9b1d6;
+}
+
+
+/* ============================================================
+   3. Timeline — Vertical Timeline
+   ============================================================ */
+
+.anna .slides section .anna-timeline {
+    position: relative;
+    padding-left: 2em;
+    text-align: left;
+    width: 100%;
+}
+
+/* Vertical line */
+.anna .slides section .anna-timeline::before {
+    content: "";
+    position: absolute;
+    left: 0.55em;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #2a2b3d;
+}
+
+.anna .slides section .anna-timeline-item {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 1.5em;
+}
+
+.anna .slides section .anna-timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Dot on the line */
+.anna .slides section .anna-timeline-dot {
+    position: absolute;
+    left: -1.45em;
+    top: 0.3em;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #7aa2f7;
+    box-shadow: 0 0 8px rgba(122, 162, 247, 0.4);
+    flex-shrink: 0;
+}
+
+.anna .slides section .anna-timeline-content {
+    flex: 1;
+    padding: 0 0 0 0.4em;
+    text-align: left;
+    font-size: 0.8em;
+    line-height: 1.6;
+    color: #a9b1d6;
+}
+
+.anna .slides section .anna-timeline-content strong {
+    color: #7aa2f7;
+    font-size: 1em;
+}
+
+
+/* ============================================================
+   4. Quote — Styled Blockquote
+   ============================================================ */
+
+.anna .slides section .anna-quote {
+    position: relative;
+    max-width: 80%;
+    margin: 0 auto;
+    padding: 1.5em 2em;
+    text-align: center;
+}
+
+/* Remove default blockquote styling if nested */
+.anna .slides section .anna-quote blockquote {
+    border: none;
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.anna .slides section .anna-quote-text {
+    position: relative;
+    font-size: 1.3em;
+    font-style: italic;
+    line-height: 1.6;
+    color: #c0caf5;
+    z-index: 1;
+}
+
+/* Big opening quotation mark */
+.anna .slides section .anna-quote-text::before {
+    content: "\201C";
+    position: absolute;
+    top: -0.3em;
+    left: -0.5em;
+    font-size: 4em;
+    color: #7aa2f7;
+    opacity: 0.3;
+    font-style: normal;
+    line-height: 1;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.anna .slides section .anna-quote-author {
+    display: block;
+    margin-top: 0.8em;
+    font-size: 0.75em;
+    color: #565f89;
+    font-style: normal;
+}
+
+
+/* ============================================================
+   5. Stats — Big Number Statistics
+   ============================================================ */
+
+.anna .slides section .anna-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.anna .slides section .anna-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 150px;
+}
+
+.anna .slides section .anna-stat-value {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #7aa2f7; /* default blue — overridden per nth-child below */
+}
+
+.anna .slides section .anna-stat-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #565f89;
+    margin-top: 0.3em;
+}
+
+/* Accent color cycling */
+.anna .slides section .anna-stat:nth-child(5n+1) .anna-stat-value { color: #7aa2f7; } /* blue   */
+.anna .slides section .anna-stat:nth-child(5n+2) .anna-stat-value { color: #9ece6a; } /* green  */
+.anna .slides section .anna-stat:nth-child(5n+3) .anna-stat-value { color: #bb9af7; } /* purple */
+.anna .slides section .anna-stat:nth-child(5n+4) .anna-stat-value { color: #ff9e64; } /* orange */
+.anna .slides section .anna-stat:nth-child(5n+5) .anna-stat-value { color: #f7768e; } /* red    */
+
+
+/* ============================================================
+   6. Cards — Grid of Cards
+   ============================================================ */
+
+.anna .slides section .anna-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1em;
+    width: 100%;
+}
+
+.anna .slides section .anna-card {
+    background: #1a1b26;
+    border-radius: 8px;
+    padding: 1.2em;
+    border: 1px solid #2a2b3d;
+    text-align: left;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.anna .slides section .anna-card:hover {
+    border-color: #7aa2f7;
+    transform: translateY(-2px);
+}
+
+.anna .slides section .anna-card h3 {
+    font-size: 1em;
+    margin: 0 0 0.5em;
+    color: #c0caf5;
+}
+
+.anna .slides section .anna-card p {
+    font-size: 0.7em;
+    color: #a9b1d6;
+    line-height: 1.5;
+    margin: 0;
+}
+
+
+/* ============================================================
+   7. Image + Text — Side-by-side
+   ============================================================ */
+
+.anna .slides section .anna-image-text {
+    display: flex;
+    gap: 2em;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+}
+
+.anna .slides section .anna-image-text-img {
+    flex: 0 0 45%;
+}
+
+.anna .slides section .anna-image-text-img img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    display: block;
+}
+
+.anna .slides section .anna-image-text-content {
+    flex: 1;
+}
+
+.anna .slides section .anna-image-text-content h3 {
+    margin: 0 0 0.5em;
+    color: #c0caf5;
+}
+
+.anna .slides section .anna-image-text-content p {
+    font-size: 0.8em;
+    color: #a9b1d6;
+    line-height: 1.6;
+}
+
+/* Image on the right variant */
+.anna .slides section .anna-image-right {
+    flex-direction: row-reverse;
+}
+
+
+/* ============================================================
+   8. Icon List
+   ============================================================ */
+
+.anna .slides section .anna-icon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    text-align: left;
+    width: 100%;
+}
+
+.anna .slides section .anna-icon-list-item {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+}
+
+.anna .slides section .anna-icon-list-icon {
+    font-size: 2em;
+    flex-shrink: 0;
+    width: 1.5em;
+    text-align: center;
+    line-height: 1;
+}
+
+.anna .slides section .anna-icon-list-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.anna .slides section .anna-icon-list-body strong {
+    font-size: 1em;
+    color: #c0caf5;
+}
+
+.anna .slides section .anna-icon-list-desc {
+    font-size: 0.7em;
+    color: #a9b1d6;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   Print overrides
+   ============================================================ */
+
+@media print {
+    .anna .slides section .anna-columns,
+    .anna .slides section .anna-comparison,
+    .anna .slides section .anna-image-text {
+        flex-wrap: wrap;
+    }
+
+    .anna .slides section .anna-card {
+        break-inside: avoid;
+    }
+
+    .anna .slides section .anna-timeline::before {
+        background: #ccc;
+    }
+
+    .anna .slides section .anna-timeline-dot {
+        background: #333;
+        box-shadow: none;
+    }
+}

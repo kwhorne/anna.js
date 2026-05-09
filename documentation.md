@@ -44,6 +44,9 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
   - [anna-slide Element](#anna-slide-element)
   - [anna-deck Element](#anna-deck-element)
   - [Embed Fragment Syntax](#embed-fragment-syntax)
+- [Components](#components)
+  - [Built-in Components](#built-in-components)
+  - [Custom Components](#custom-components)
 - [Themes](#themes)
   - [Theme Reference Table](#theme-reference-table)
 - [Plugins](#plugins)
@@ -58,6 +61,7 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
   - [Zoom](#zoom-plugin)
   - [Multiplex](#multiplex-plugin)
   - [Live](#live-plugin)
+  - [Components](#components-plugin)
 - [JavaScript API](#javascript-api)
   - [Anna.initialize()](#annainitialize)
   - [Configuration Reference](#configuration-reference)
@@ -1194,6 +1198,201 @@ The built-in parser supports:
 
 ---
 
+## Components
+
+Anna.js includes a component system for reusable slide layouts. Components are processed before slide parsing — you write simple directives in Markdown and they expand into styled HTML.
+
+### Built-in Components
+
+8 layout components are available without any setup. They generate HTML with `anna-*` CSS classes that are automatically styled when the components CSS is included.
+
+#### Columns
+
+Multi-column layout (supports 2 or 3 columns):
+
+````markdown
+<!-- @columns -->
+### Left Column
+Content on the left side.
+
+<!-- @col -->
+### Right Column
+Content on the right side.
+<!-- @end -->
+````
+
+For three columns, add a second `<!-- @col -->` divider.
+
+#### Comparison
+
+Side-by-side pros and cons with colored borders:
+
+````markdown
+<!-- @comparison pros="Advantages" cons="Disadvantages" -->
+- Fast performance
+- Easy to learn
+- Great community
+
+<!-- @vs -->
+- Steep learning curve
+- Limited ecosystem
+- Complex setup
+<!-- @end -->
+````
+
+The pros side gets a green left border (✓), the cons side gets a red left border (✗).
+
+#### Timeline
+
+Vertical timeline with dots and a connecting line:
+
+````markdown
+<!-- @timeline -->
+- **2020** — Project started
+- **2021** — First release
+- **2022** — 1000 users
+- **2023** — Version 2.0
+<!-- @end -->
+````
+
+Each list item becomes a timeline entry. Dates/labels in `**bold**` are highlighted in blue.
+
+#### Quote
+
+Styled blockquote with author attribution:
+
+````markdown
+<!-- @quote author="Steve Jobs" -->
+Stay hungry, stay foolish.
+<!-- @end -->
+````
+
+Renders with a large decorative quotation mark and the author name below.
+
+#### Stats
+
+Big number statistics with color-cycling accents:
+
+````markdown
+<!-- @stats -->
+- 10K+ | Downloads
+- 99.9% | Uptime
+- 50ms | Response Time
+- 4.9★ | Rating
+<!-- @end -->
+````
+
+Format: `- VALUE | LABEL`. Values cycle through blue, green, purple, orange, and red.
+
+#### Cards
+
+Grid of cards, split on `###` headings:
+
+````markdown
+<!-- @cards -->
+### 🚀 Fast
+Lightning-fast build times.
+
+### 🎨 Beautiful
+11 built-in themes.
+
+### 🔧 Extensible
+Plugin architecture.
+
+### 📱 Responsive
+Works on all devices.
+<!-- @end -->
+````
+
+Cards auto-fit into a responsive grid using `repeat(auto-fit, minmax(200px, 1fr))`.
+
+#### Image-Text
+
+Image alongside text content:
+
+````markdown
+<!-- @image-text src="photo.jpg" alt="Photo" -->
+### About Me
+I'm a developer who loves building tools.
+<!-- @end -->
+````
+
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `src` | *(required)* | Image URL |
+| `alt` | `""` | Alt text |
+| `side` | `left` | Image position: `left` or `right` |
+
+Add `side="right"` to place the image on the right.
+
+#### Icon List
+
+List items with large icons, bold titles, and descriptions:
+
+````markdown
+<!-- @icon-list -->
+- 📱 | **Mobile First** | Responsive design out of the box
+- 🔒 | **Secure** | Built-in XSS protection
+- ⚡ | **Fast** | Sub-second load times
+<!-- @end -->
+````
+
+Format: `- ICON | TITLE | DESCRIPTION` (split on `|`).
+
+### Custom Components
+
+Define reusable components with placeholder variables:
+
+**Definition:**
+
+````markdown
+<!-- @component: team-card -->
+### {name}
+![{avatar}]({avatar_url})
+*{role}*
+<!-- @end -->
+````
+
+**Usage:**
+
+````markdown
+<!-- @use: team-card name="Knut" role="Creator" avatar_url="knut.jpg" -->
+<!-- @use: team-card name="Anna" role="Designer" avatar_url="anna.jpg" -->
+````
+
+**How it works:**
+
+1. `<!-- @component: NAME -->...<!-- @end -->` defines a template with `{placeholder}` variables
+2. `<!-- @use: NAME key="value" -->` expands the template with the provided values
+3. Definitions are removed from the output — only usages produce content
+4. Attribute values can be quoted (`key="value with spaces"`) or unquoted (`key=simple`)
+
+**Processing order:**
+
+1. Custom component definitions are extracted and removed
+2. Built-in components are expanded
+3. Custom `@use` directives are expanded
+4. Normal slide parsing runs on the result
+
+### Component CSS Classes
+
+All built-in components use `anna-` prefixed CSS classes:
+
+| Component | Root Class | Key Inner Classes |
+|-----------|-----------|-------------------|
+| Columns | `anna-columns` | `anna-col` |
+| Comparison | `anna-comparison` | `anna-comparison-side`, `anna-comparison-pros`, `anna-comparison-cons` |
+| Timeline | `anna-timeline` | `anna-timeline-item`, `anna-timeline-dot`, `anna-timeline-content` |
+| Quote | `anna-quote` | `anna-quote-text`, `anna-quote-author` |
+| Stats | `anna-stats` | `anna-stat`, `anna-stat-value`, `anna-stat-label` |
+| Cards | `anna-cards` | `anna-card` |
+| Image-Text | `anna-image-text` | `anna-image-text-img`, `anna-image-text-content`, `anna-image-right` |
+| Icon List | `anna-icon-list` | `anna-icon-list-item`, `anna-icon-list-icon`, `anna-icon-list-body` |
+
+The CSS is automatically included when any component is detected in the generated HTML.
+
+---
+
 ## Themes
 
 Anna.js includes 11 built-in themes. Set the theme in your frontmatter:
@@ -1530,6 +1729,20 @@ Anna.initialize({
 - Graceful fallback if server is unreachable
 - All click/keydown events stop propagation to avoid interfering with Anna.js navigation
 - Session tracking via `sessionStorage` for duplicate vote prevention
+
+---
+
+### Components Plugin
+
+**Files:** `plugin/components/components.css`, `cli/components.js`
+
+Provides 8 built-in slide layout components and a custom component system. See [Components](#components) for full documentation.
+
+**Automatically included** when any `anna-*` CSS class is detected in the generated HTML.
+
+**Built-in layouts:** columns, comparison, timeline, quote, stats, cards, image-text, icon-list.
+
+**Custom components:** Define with `<!-- @component: name -->`, use with `<!-- @use: name -->`.
 
 ---
 
@@ -1926,6 +2139,7 @@ anna/
 │   ├── generate.js             # Markdown → HTML generator
 │   ├── serve.js                # Dev server with live reload
 │   ├── live.js                 # Live server with audience interaction
+│   ├── components.js           # Component processing engine
 │   ├── export.js               # PDF export via Puppeteer
 │   └── ai.js                   # AI generation, refine, translate
 ├── css/
@@ -1962,6 +2176,7 @@ anna/
 │   ├── notes/                  # Speaker notes
 │   ├── notes-server/           # Server-side notes
 │   ├── live/                   # Real-time polls, Q&A, reactions
+│   ├── components/             # Reusable slide layout components
 │   ├── playground/             # Live code editor
 │   ├── print-pdf/              # PDF print layout
 │   ├── search/                 # Text search across slides

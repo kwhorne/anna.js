@@ -103,6 +103,16 @@ Speaker notes — press S to open.
 | ` ```playground step ` | Step-by-step code with diff highlighting |
 | ` ```poll ` | Live poll (requires `anna live`) |
 | ` ```qa ` | Live Q&A (requires `anna live`) |
+| `<!-- @columns -->` | Multi-column layout |
+| `<!-- @comparison -->` | Side-by-side pros/cons |
+| `<!-- @timeline -->` | Vertical timeline |
+| `<!-- @quote -->` | Styled blockquote with attribution |
+| `<!-- @stats -->` | Big number statistics |
+| `<!-- @cards -->` | Card grid layout |
+| `<!-- @image-text -->` | Image + text side-by-side |
+| `<!-- @icon-list -->` | Icon list with descriptions |
+| `<!-- @component -->` | Define a reusable component |
+| `<!-- @use -->` | Use a defined component |
 
 ## Frontmatter
 
@@ -346,6 +356,72 @@ Slides as web components for blog posts and documentation:
 
 Shadow DOM, all 11 themes, fragments, and keyboard navigation. One `<script>` tag.
 
+## Components
+
+Reusable slide layouts — no custom HTML needed.
+
+### Built-in Layouts
+
+**Columns:**
+
+````markdown
+<!-- @columns -->
+### Left Column
+Content here.
+<!-- @col -->
+### Right Column
+More content.
+<!-- @end -->
+````
+
+**Comparison:**
+
+````markdown
+<!-- @comparison pros="Pros" cons="Cons" -->
+- Fast performance
+- Easy to learn
+<!-- @vs -->
+- Steep learning curve
+- Complex setup
+<!-- @end -->
+````
+
+**Timeline:**
+
+````markdown
+<!-- @timeline -->
+- **2020** — Project started
+- **2021** — First release
+- **2023** — Version 2.0
+<!-- @end -->
+````
+
+**Stats:**
+
+````markdown
+<!-- @stats -->
+- 10K+ | Downloads
+- 99.9% | Uptime
+- 50ms | Response Time
+<!-- @end -->
+````
+
+**Cards, Quote, Image-Text, and Icon List** are also available — see [documentation.md](documentation.md) for all 8 layouts.
+
+### Custom Components
+
+Define once, reuse anywhere:
+
+````markdown
+<!-- @component: team-card -->
+### {name}
+*{role}*
+<!-- @end -->
+
+<!-- @use: team-card name="Knut" role="Creator" -->
+<!-- @use: team-card name="Anna" role="Designer" -->
+````
+
 ## Themes
 
 **Dark:** black, night, moon, blood, league (default)
@@ -374,7 +450,7 @@ npm test          # lint + 32 tests
 
 ## Plugins
 
-markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground, live
+markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground, live, components
 
 ## License
 

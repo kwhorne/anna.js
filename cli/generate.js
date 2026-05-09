@@ -17,6 +17,8 @@ const https = require("https");
 const matter = require("gray-matter");
 const { marked } = require("marked");
 
+const { processComponents } = require("./components");
+
 const MERMAID_CDN_URL =
   "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
 const MERMAID_LOCAL_PATH = path.resolve(
@@ -205,7 +207,8 @@ function build(inputFile, opts = {}) {
     opts.annaRoot || resolveAnnaRoot(inputFile.replace(/\.md$/, ".html"));
   const raw = fs.readFileSync(inputFile, "utf-8");
   const { data: config, content } = matter(raw);
-  const slides = parseSlides(content);
+  const expanded = processComponents(content);
+  const slides = parseSlides(expanded);
   return generateHTML(slides, config, annaRoot, {
     offline: opts.offline,
     pwa: opts.pwa,
@@ -403,6 +406,14 @@ function hasPlaygroundBlocks(slides) {
   });
 }
 
+function hasComponentBlocks(slides) {
+  return slides.some((s) => {
+    if (s.vertical)
+      return s.vertical.some((v) => v.content.includes('class="anna-'));
+    return s.content.includes('class="anna-');
+  });
+}
+
 function hasLiveBlocks(slides) {
   return slides.some((s) => {
     if (s.vertical)
@@ -467,6 +478,7 @@ function generateHTML(slides, config, annaRoot, extraOpts) {
   const useMermaid = hasMermaidBlocks(slides);
   const usePlayground = hasPlaygroundBlocks(slides);
   const useLive = hasLiveBlocks(slides);
+  const useComponents = hasComponentBlocks(slides);
   const mermaidTheme = DARK_THEMES.includes(theme) ? "dark" : "default";
   const themeColor = THEME_COLORS[theme] || "#222";
 
@@ -516,7 +528,7 @@ ${author ? `\t\t<meta name="author" content="${esc(author)}">\n` : ""}${pwaHead}
 \t\t<link rel="stylesheet" href="${p}/css/anna.css">
 \t\t<link rel="stylesheet" href="${p}/css/theme/${theme}.css">
 \t\t<link rel="stylesheet" href="${p}/lib/css/monokai.css">
-${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ""}${useMermaid ? `\t\t<link rel="stylesheet" href="${p}/plugin/mermaid/mermaid.css">\n` : ""}${usePlayground ? `\t\t<link rel="stylesheet" href="${p}/plugin/playground/playground.css">\n` : ""}${useLive ? `\t\t<link rel="stylesheet" href="${p}/plugin/live/live.css">\n` : ""}\t</head>
+${useTerminal ? `\t\t<link rel="stylesheet" href="${p}/plugin/terminal/terminal.css">\n` : ""}${useMermaid ? `\t\t<link rel="stylesheet" href="${p}/plugin/mermaid/mermaid.css">\n` : ""}${usePlayground ? `\t\t<link rel="stylesheet" href="${p}/plugin/playground/playground.css">\n` : ""}${useLive ? `\t\t<link rel="stylesheet" href="${p}/plugin/live/live.css">\n` : ""}${useComponents ? `\t\t<link rel="stylesheet" href="${p}/plugin/components/components.css">\n` : ""}\t</head>
 \t<body>
 \t\t<div class="anna">
 \t\t\t<div class="slides">
