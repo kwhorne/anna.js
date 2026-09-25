@@ -24,12 +24,10 @@ html {
 
 /* Remove any elements not needed in print. */
 .nestedarrow,
-.reveal .controls,
-.reveal .progress,
-.reveal .playback,
-.reveal.overview,
-.fork-reveal,
-.share-reveal,
+.anna .controls,
+.anna .progress,
+.anna .playback,
+.anna.overview,
 .state-background {
 	display: none !important;
 }
@@ -38,7 +36,7 @@ h1, h2, h3, h4, h5, h6 {
 	text-shadow: 0 0 0 #000 !important;
 }
 
-.reveal pre code {
+.anna pre code {
 	overflow: hidden !important;
 	font-family: Courier, 'Courier New', monospace !important;
 }
@@ -52,12 +50,12 @@ ul, ol, div, p {
 	overflow: visible;
 	margin: auto;
 }
-.reveal {
+.anna {
 	width: auto !important;
 	height: auto !important;
 	overflow: hidden !important;
 }
-.reveal .slides {
+.anna .slides {
 	position: static;
 	width: 100% !important;
 	height: auto !important;
@@ -75,7 +73,7 @@ ul, ol, div, p {
 	perspective-origin: 50% 50%;
 }
 
-.reveal .slides .pdf-page {
+.anna .slides .pdf-page {
 	position: relative;
 	overflow: hidden;
 	z-index: 1;
@@ -83,7 +81,7 @@ ul, ol, div, p {
 	page-break-after: always;
 }
 
-.reveal .slides section {
+.anna .slides section {
 	visibility: visible !important;
 	display: block !important;
 	position: absolute !important;
@@ -99,7 +97,7 @@ ul, ol, div, p {
 	transform: none !important;
 }
 
-.reveal section.stack {
+.anna section.stack {
 	position: relative !important;
 	margin: 0 !important;
 	padding: 0 !important;
@@ -108,17 +106,17 @@ ul, ol, div, p {
 	min-height: auto !important;
 }
 
-.reveal img {
+.anna img {
 	box-shadow: none;
 }
 
-.reveal .roll {
+.anna .roll {
 	overflow: visible;
 	line-height: 1em;
 }
 
 /* Slide backgrounds are placed inside of their slide when exporting to PDF */
-.reveal .slide-background {
+.anna .slide-background {
 	display: block !important;
 	position: absolute;
 	top: 0;
@@ -129,11 +127,11 @@ ul, ol, div, p {
 }
 
 /* Display slide speaker notes when 'showNotes' is enabled */
-.reveal.show-notes {
+.anna.show-notes {
 	max-width: none;
 	max-height: none;
 }
-.reveal .speaker-notes-pdf {
+.anna .speaker-notes-pdf {
 	display: block;
 	width: 100%;
 	height: auto;
@@ -146,7 +144,7 @@ ul, ol, div, p {
 }
 
 /* Layout option which makes notes appear on a separate page */
-.reveal .speaker-notes-pdf[data-layout="separate-page"] {
+.anna .speaker-notes-pdf[data-layout="separate-page"] {
 	position: relative;
 	color: inherit;
 	background-color: transparent;
@@ -156,7 +154,7 @@ ul, ol, div, p {
 }
 
 /* Display slide numbers when 'slideNumber' is enabled */
-.reveal .slide-number-pdf {
+.anna .slide-number-pdf {
 	display: block;
 	position: absolute;
 	font-size: 14px;

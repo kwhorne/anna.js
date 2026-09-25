@@ -59,7 +59,6 @@ Anna.js turns Markdown files into beautiful, interactive HTML presentations with
   - [Math](#math-plugin)
   - [Search](#search-plugin)
   - [Zoom](#zoom-plugin)
-  - [Multiplex](#multiplex-plugin)
   - [Live](#live-plugin)
   - [Components](#components-plugin)
 - [JavaScript API](#javascript-api)
@@ -99,7 +98,7 @@ npx anna --help
 
 ### Requirements
 
-- **Node.js** ≥ 16.7.0
+- **Node.js** ≥ 20
 - **Optional:** `@anthropic-ai/sdk` for AI features (`npm install @anthropic-ai/sdk`)
 - **Optional:** `puppeteer` for PDF export (`npm install puppeteer`)
 
@@ -253,9 +252,9 @@ anna live <input.md> [options]
 
 | Route | Description |
 |-------|-------------|
-| `/` | Presenter view — full presentation with live plugin injected |
+| `/` | Presenter view — full presentation with live plugin injected. Only served to this machine; other devices are redirected to `/audience` |
 | `/audience` | Audience view — mobile-friendly page with polls, Q&A, and reactions |
-| `/qr` | QR code page for sharing the audience URL |
+| `/qr` | QR code page for sharing the audience URL (uses this machine's LAN address) |
 | `/api/state` | JSON endpoint with current server state |
 
 **How it works:**
@@ -272,12 +271,14 @@ anna live <input.md> [options]
 - `qa-question` — new question submission
 - `qa-upvote` — one upvote per session per question
 - `reaction` — emoji reactions (batched in 500ms windows)
-- `slide-changed` — syncs audience view with presenter
+- `slide-changed` — syncs audience view with presenter (only accepted from the presenter view)
+
+Audience input is validated: IDs must match `[A-Za-z0-9_-]{1,64}`, questions are capped at 500 characters, and only the built-in reactions are accepted.
 
 **Examples:**
 
 ```bash
-anna live slides.md                # http://localhost:4000
+anna live slides.md                # presenter: http://localhost:4000, audience: http://<lan-ip>:4000/audience
 anna live slides.md --port 8080   # http://localhost:8080
 anna live slides.md --open        # auto-opens browser
 ```
@@ -1669,31 +1670,6 @@ Anna.initialize({
 
 ---
 
-### Multiplex Plugin
-
-**Files:** `plugin/multiplex/index.js`, `plugin/multiplex/client.js`, `plugin/multiplex/master.js`
-
-Real-time presentation synchronization — one presenter controls multiple viewers' slides simultaneously.
-
-**Architecture:**
-- **Server** (Node.js + Express + Socket.IO) listens on port `1948`
-- **Master** — The presenter's browser, sends state changes
-- **Clients** — Viewer browsers, receive and apply state changes
-
-**Server setup:**
-
-```bash
-node plugin/multiplex/index.js
-```
-
-**Endpoints:**
-- `GET /` — Presentation or info page
-- `GET /token` — Generate a `{ secret, socketId }` pair for authentication
-
-**Authentication:** State changes are validated via Blowfish hash of the socket ID + secret.
-
----
-
 ### Live Plugin
 
 **Files:** `plugin/live/live.js`, `plugin/live/live.css`
@@ -1708,7 +1684,8 @@ Real-time audience interaction — polls, Q&A, and emoji reactions. See [Anna Li
 Anna.initialize({
     live: {
         url: 'http://localhost:4000',  // Socket.IO server URL
-        mode: 'presenter'              // 'presenter' or 'audience'
+        mode: 'presenter',             // 'presenter' or 'audience'
+        token: '...'                   // presenter token, injected by `anna live`
     }
 });
 ```
@@ -1718,11 +1695,12 @@ Anna.initialize({
 - `qa-question` — `{ qaId, text, sessionId }`
 - `qa-upvote` — `{ qaId, questionId, sessionId }`
 - `reaction` — `{ emoji, slideIndex }`
+- `slide-changed` — `{ h, v, token }` (presenter mode only)
 
 **Socket.IO events received:**
 - `poll-results` — `{ pollId, results, totalVotes }`
 - `qa-questions` — `{ qaId, questions }`
-- `reaction-burst` — `{ emoji, count }`
+- `reaction-burst` — `{ [emoji]: count }`
 
 **Features:**
 - Lazy-loads Socket.IO from CDN
@@ -2172,9 +2150,7 @@ anna/
 │   ├── markdown/               # Markdown processing
 │   ├── math/                   # MathJax integration
 │   ├── mermaid/                # Mermaid diagram styles
-│   ├── multiplex/              # Real-time sync (Socket.IO)
 │   ├── notes/                  # Speaker notes
-│   ├── notes-server/           # Server-side notes
 │   ├── live/                   # Real-time polls, Q&A, reactions
 │   ├── components/             # Reusable slide layout components
 │   ├── playground/             # Live code editor
@@ -2182,7 +2158,7 @@ anna/
 │   ├── search/                 # Text search across slides
 │   ├── terminal/               # Animated terminal widgets
 │   └── zoom-js/                # Click-to-zoom
-├── test/                       # Test suite (32 tests)
+├── test/                       # Test suite (38 tests)
 ├── index.html                  # Demo presentation
 ├── demo.html                   # Feature demo
 ├── example.md                  # Example Markdown source
@@ -2225,7 +2201,7 @@ npm start                   # browser-sync with livereload
 ### Testing
 
 ```bash
-npm test                    # ESLint + 32 unit tests
+npm test                    # ESLint + 38 tests
 npm run lint                # ESLint only
 ```
 

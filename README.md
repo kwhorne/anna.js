@@ -445,12 +445,12 @@ Define once, reuse anywhere:
 npm install
 npm run build     # compile SCSS + minify CSS/JS
 npm start         # dev server with livereload
-npm test          # lint + 32 tests
+npm test          # lint + 38 tests
 ```
 
 ## Plugins
 
-markdown, highlight, notes, math, search, zoom, multiplex, terminal, mermaid, playground, live, components
+markdown, highlight, notes, math, search, zoom, terminal, mermaid, playground, live, components
 
 ## License
 

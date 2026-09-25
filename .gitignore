@@ -3,3 +3,5 @@ node_modules/
 .idea/
 example.html
 embed-demo.html
+*.map
+test/tmp/

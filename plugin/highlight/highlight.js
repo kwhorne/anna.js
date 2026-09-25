@@ -75,7 +75,7 @@ c:[{cN:"comment",b:/\(\*/,e:/\*\)/},e.ASM,e.QSM,e.CNM,{b:/\{/,e:/\}/,i:/:/}]}});
 			config.highlightOnLoad = typeof config.highlightOnLoad === 'boolean' ? config.highlightOnLoad : true;
 			config.escapeHTML = typeof config.escapeHTML === 'boolean' ? config.escapeHTML : true;
 
-			[].slice.call( document.querySelectorAll( '.reveal pre code' ) ).forEach( function( block ) {
+			[].slice.call( document.querySelectorAll( '.anna pre code' ) ).forEach( function( block ) {
 
 				// Trim whitespace if the "data-trim" attribute is present
 				if( block.hasAttribute( 'data-trim' ) && typeof block.innerHTML.trim === 'function' ) {

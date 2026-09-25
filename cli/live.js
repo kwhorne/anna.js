@@ -15,12 +15,36 @@
  */
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const { exec } = require('child_process');
 const { build } = require('./generate');
+
+// --- Limits for audience input ---
+
+const ID_PATTERN = /^[\w-]{1,64}$/;
+const MAX_OPTION_LENGTH = 200;
+const MAX_OPTIONS_PER_POLL = 50;
+const MAX_QUESTION_LENGTH = 500;
+const MAX_QUESTIONS_PER_QA = 200;
+const MAX_POLLS = 100;
+const MAX_QA_SESSIONS = 100;
+
+// Allowed reactions: audience view sends a name, presenter plugin sends the emoji
+const REACTIONS = {
+	thumbsup: '\u{1F44D}',
+	clap: '\u{1F44F}',
+	heart: '❤️',
+	laugh: '\u{1F602}',
+	think: '\u{1F914}',
+	surprise: '\u{1F62E}',
+	party: '\u{1F389}'
+};
+const REACTION_EMOJIS = new Set(Object.values(REACTIONS));
 
 // --- Public API ---
 
@@ -38,7 +62,7 @@ function run(args) {
     --help, -h            Show this help
 
   Routes:
-    /           Presenter view (full presentation + live plugin)
+    /           Presenter view (only from this machine)
     /audience   Audience view (polls, Q&A, reactions)
     /qr         QR code page for the audience URL
 
@@ -63,18 +87,22 @@ function run(args) {
 	}
 
 	const annaRoot = path.resolve(__dirname, '..');
-	const baseURL = 'http://localhost:' + port;
+	const localURL = 'http://localhost:' + port;
+	const audienceURL = 'http://' + getLanAddress() + ':' + port + '/audience';
+
+	// Only the presenter page knows this token, so only it can change slides
+	const presenterToken = crypto.randomBytes(16).toString('hex');
 
 	// --- Server-side state ---
 
 	const state = {
-		polls: {},        // { pollId: { results: { option: count }, voters: Set } }
-		questions: {},    // { qaId: [{ id, text, votes, voterIds: Set, timestamp }] }
+		polls: new Map(),      // pollId -> { results: { option: count }, voters: Set }
+		questions: new Map(),  // qaId -> [{ id, text, votes, voterIds: Set, timestamp }]
 		currentSlide: { h: 0, v: 0 }
 	};
 
-	// Reaction aggregation buffer
-	let reactionBuffer = {};
+	// Reaction aggregation buffer: { emoji: count }
+	let reactionBuffer = Object.create(null);
 	let reactionTimer = null;
 
 	// --- Initial build ---
@@ -82,8 +110,8 @@ function run(args) {
 	let presenterHTML = '';
 
 	try {
-		presenterHTML = buildPresenterHTML(inputFile, port);
-		console.log('  \u2713 Initial build of ' + inputFile);
+		presenterHTML = buildPresenterHTML(inputFile, port, presenterToken);
+		console.log('  ✓ Initial build of ' + inputFile);
 	} catch (e) {
 		console.error('  Error during initial build: ' + e.message);
 		process.exit(1);
@@ -93,23 +121,24 @@ function run(args) {
 
 	const app = express();
 	const httpServer = createServer(app);
-	const io = new Server(httpServer, {
-		cors: { origin: '*' }
-	});
+	const io = new Server(httpServer);
 
-	// Presenter view
-	app.get('/', (_req, res) => {
+	// Presenter view (contains the presenter token, so keep it on this machine)
+	app.get('/', (req, res) => {
+		if (!isLoopback(req)) {
+			res.redirect('/audience');
+			return;
+		}
 		res.type('html').send(presenterHTML);
 	});
 
 	// Audience view
 	app.get('/audience', (_req, res) => {
-		res.type('html').send(generateAudienceHTML(port));
+		res.type('html').send(generateAudienceHTML());
 	});
 
 	// QR code page
 	app.get('/qr', (_req, res) => {
-		const audienceURL = baseURL + '/audience';
 		res.type('html').send(generateQRPage(audienceURL));
 	});
 
@@ -122,15 +151,13 @@ function run(args) {
 		};
 
 		// Serialize polls (Sets are not JSON-serializable)
-		for (const [id, poll] of Object.entries(state.polls)) {
+		for (const [id, poll] of state.polls) {
 			sanitized.polls[id] = { results: poll.results };
 		}
 
 		// Serialize questions (strip voter Sets)
-		for (const [id, qList] of Object.entries(state.questions)) {
-			sanitized.questions[id] = qList.map(function(q) {
-				return { id: q.id, text: q.text, votes: q.votes, timestamp: q.timestamp };
-			});
+		for (const [id, qList] of state.questions) {
+			sanitized.questions[id] = serializeQuestions(qList);
 		}
 
 		res.json(sanitized);
@@ -149,22 +176,37 @@ function run(args) {
 
 	io.on('connection', (socket) => {
 
+		// Audience input is untrusted: validate it, and never let one bad
+		// message take the whole server down.
+		function on(event, handler) {
+			socket.on(event, (data) => {
+				if (!data || typeof data !== 'object') return;
+				try {
+					handler(data);
+				} catch (e) {
+					console.error('  Error handling ' + event + ': ' + e.message);
+				}
+			});
+		}
+
 		// Send current state on connect
 		socket.emit('slide-changed', state.currentSlide);
 
 		// --- Poll vote ---
-		socket.on('poll-vote', (data) => {
+		on('poll-vote', (data) => {
 			const { pollId, option, sessionId } = data;
-			if (!pollId || !option || !sessionId) return;
+			if (!isId(pollId) || !isText(option, MAX_OPTION_LENGTH) || !isId(sessionId)) return;
 
-			if (!state.polls[pollId]) {
-				state.polls[pollId] = { results: {}, voters: new Set() };
+			let poll = state.polls.get(pollId);
+			if (!poll) {
+				if (state.polls.size >= MAX_POLLS) return;
+				poll = { results: Object.create(null), voters: new Set() };
+				state.polls.set(pollId, poll);
 			}
-
-			const poll = state.polls[pollId];
 
 			// One vote per session per poll
 			if (poll.voters.has(sessionId)) return;
+			if (!(option in poll.results) && Object.keys(poll.results).length >= MAX_OPTIONS_PER_POLL) return;
 
 			poll.voters.add(sessionId);
 			poll.results[option] = (poll.results[option] || 0) + 1;
@@ -176,36 +218,39 @@ function run(args) {
 		});
 
 		// --- Q&A question ---
-		socket.on('qa-question', (data) => {
-			const { qaId, text, sessionId } = data;
-			if (!qaId || !text || !sessionId) return;
+		on('qa-question', (data) => {
+			const { qaId, sessionId } = data;
+			const text = typeof data.text === 'string' ? data.text.trim() : '';
+			if (!isId(qaId) || !isText(text, MAX_QUESTION_LENGTH) || !isId(sessionId)) return;
 
-			if (!state.questions[qaId]) {
-				state.questions[qaId] = [];
+			let qList = state.questions.get(qaId);
+			if (!qList) {
+				if (state.questions.size >= MAX_QA_SESSIONS) return;
+				qList = [];
+				state.questions.set(qaId, qList);
 			}
+			if (qList.length >= MAX_QUESTIONS_PER_QA) return;
 
-			const question = {
+			qList.push({
 				id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
 				text: text,
 				votes: 0,
 				voterIds: new Set(),
 				timestamp: Date.now()
-			};
-
-			state.questions[qaId].push(question);
+			});
 
 			io.emit('qa-questions', {
 				qaId: qaId,
-				questions: serializeQuestions(state.questions[qaId])
+				questions: serializeQuestions(qList)
 			});
 		});
 
 		// --- Q&A upvote ---
-		socket.on('qa-upvote', (data) => {
+		on('qa-upvote', (data) => {
 			const { qaId, questionId, sessionId } = data;
-			if (!qaId || !questionId || !sessionId) return;
+			if (!isId(qaId) || !isId(questionId) || !isId(sessionId)) return;
 
-			const qList = state.questions[qaId];
+			const qList = state.questions.get(qaId);
 			if (!qList) return;
 
 			const question = qList.find(function(q) { return q.id === questionId; });
@@ -224,25 +269,28 @@ function run(args) {
 		});
 
 		// --- Reaction ---
-		socket.on('reaction', (data) => {
-			const { type } = data;
-			if (!type) return;
+		on('reaction', (data) => {
+			const emoji = typeof data.type === 'string' && Object.hasOwn(REACTIONS, data.type)
+				? REACTIONS[data.type]
+				: data.emoji;
+			if (!REACTION_EMOJIS.has(emoji)) return;
 
-			reactionBuffer[type] = (reactionBuffer[type] || 0) + 1;
+			reactionBuffer[emoji] = (reactionBuffer[emoji] || 0) + 1;
 
 			// Aggregate reactions in a 500ms window
 			if (!reactionTimer) {
 				reactionTimer = setTimeout(function() {
 					io.emit('reaction-burst', reactionBuffer);
-					reactionBuffer = {};
+					reactionBuffer = Object.create(null);
 					reactionTimer = null;
 				}, 500);
 			}
 		});
 
-		// --- Slide changed (from presenter) ---
-		socket.on('slide-changed', (data) => {
-			if (data && typeof data.h === 'number' && typeof data.v === 'number') {
+		// --- Slide changed (from presenter only) ---
+		on('slide-changed', (data) => {
+			if (data.token !== presenterToken) return;
+			if (Number.isInteger(data.h) && Number.isInteger(data.v)) {
 				state.currentSlide = { h: data.h, v: data.v };
 				socket.broadcast.emit('slide-changed', state.currentSlide);
 			}
@@ -253,14 +301,14 @@ function run(args) {
 
 	httpServer.listen(port, () => {
 		console.log('\n  Anna.js Live Server\n');
-		console.log('  \u2713 Presenter:  ' + baseURL);
-		console.log('  \u2713 Audience:   ' + baseURL + '/audience');
-		console.log('  \u2713 QR Code:    ' + baseURL + '/qr');
-		console.log('  \u2713 Watching ' + inputFile + ' for changes\n');
+		console.log('  ✓ Presenter:  ' + localURL);
+		console.log('  ✓ Audience:   ' + audienceURL);
+		console.log('  ✓ QR Code:    ' + localURL + '/qr');
+		console.log('  ✓ Watching ' + inputFile + ' for changes\n');
 		console.log('  Share the audience URL with your audience!\n');
 
 		if (shouldOpen) {
-			exec('open ' + baseURL);
+			exec('open ' + localURL);
 		}
 	});
 
@@ -280,8 +328,8 @@ function run(args) {
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(() => {
 			try {
-				presenterHTML = buildPresenterHTML(inputFile, port);
-				console.log('  \u2713 Rebuilt ' + inputFile);
+				presenterHTML = buildPresenterHTML(inputFile, port, presenterToken);
+				console.log('  ✓ Rebuilt ' + inputFile);
 			} catch (e) {
 				console.error('  Error: ' + e.message);
 			}
@@ -304,7 +352,7 @@ function run(args) {
 /**
  * Build the presenter HTML from markdown with the live plugin injected.
  */
-function buildPresenterHTML(inputFile, port) {
+function buildPresenterHTML(inputFile, port, token) {
 	let html = build(inputFile, { annaRoot: '.' });
 
 	// Inject live plugin CSS and JS before </head>
@@ -317,7 +365,7 @@ function buildPresenterHTML(inputFile, port) {
 	}
 
 	// Inject live config into Anna.initialize() call
-	const liveConfig = 'live: { url: \'http://localhost:' + port + '\', mode: \'presenter\' },\n\t\t\t\t';
+	const liveConfig = 'live: { url: \'http://localhost:' + port + '\', mode: \'presenter\', token: \'' + token + '\' },\n\t\t\t\t';
 	html = html.replace('Anna.initialize({', 'Anna.initialize({\n\t\t\t\t' + liveConfig);
 
 	return html;
@@ -332,12 +380,38 @@ function serializeQuestions(questions) {
 	});
 }
 
+function isId(value) {
+	return typeof value === 'string' && ID_PATTERN.test(value);
+}
+
+function isText(value, maxLength) {
+	return typeof value === 'string' && value.length > 0 && value.length <= maxLength;
+}
+
+function isLoopback(req) {
+	const addr = req.socket.remoteAddress || '';
+	return addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
+}
+
+/**
+ * Find this machine's LAN IPv4 address so phones on the same network can
+ * reach the audience view. Falls back to localhost when offline.
+ */
+function getLanAddress() {
+	for (const addresses of Object.values(os.networkInterfaces())) {
+		for (const addr of addresses || []) {
+			if (addr.family === 'IPv4' && !addr.internal) {
+				return addr.address;
+			}
+		}
+	}
+	return 'localhost';
+}
+
 /**
  * Generate the audience HTML page.
  */
-function generateAudienceHTML(port) {
-	const baseURL = 'http://localhost:' + port;
-
+function generateAudienceHTML() {
 	return '<!doctype html>\n'
 		+ '<html>\n'
 		+ '\t<head>\n'
@@ -544,7 +618,7 @@ function generateAudienceHTML(port) {
 		+ '\t\t\t\t\tsessionStorage.setItem("anna-session-id", sessionId);\n'
 		+ '\t\t\t\t}\n'
 		+ '\n'
-		+ '\t\t\t\tvar socket = io("' + baseURL + '");\n'
+		+ '\t\t\t\tvar socket = io();\n'
 		+ '\t\t\t\tvar connDot = document.getElementById("conn-dot");\n'
 		+ '\t\t\t\tvar connText = document.getElementById("conn-text");\n'
 		+ '\t\t\t\tvar slideIndicator = document.getElementById("slide-indicator");\n'
