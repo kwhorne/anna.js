@@ -254,14 +254,14 @@ body {
 }
 
 .anna a:hover {
-  color: rgb(191.56, 167.64, 110.44);
+  color: rgb(75.1215686275%, 65.7411764706%, 43.3098039216%);
   text-shadow: none;
   border: none;
 }
 
 .anna .roll span:after {
   color: #fff;
-  background: rgb(85.8325, 71.63, 37.6675);
+  background: rgb(33.6598039216%, 28.0901960784%, 14.7715686275%);
 }
 
 /*********************************************

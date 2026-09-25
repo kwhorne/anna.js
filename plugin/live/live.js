@@ -115,10 +115,27 @@
 			if (err) return;
 
 			connectSocket(config.url);
+			if (config.mode === 'presenter' && config.token) {
+				syncSlides(config.token);
+			}
 			setupPolls();
 			setupQA();
 			injectReactionBar();
 		});
+	}
+
+	// --- Slide sync (presenter only) ---
+
+	function syncSlides(token) {
+		if (!socket) return;
+
+		function emitSlide() {
+			var indices = Anna.getIndices();
+			socket.emit('slide-changed', { h: indices.h || 0, v: indices.v || 0, token: token });
+		}
+
+		Anna.addEventListener('slidechanged', emitSlide);
+		socket.on('connect', emitSlide);
 	}
 
 	// =========================================================
@@ -477,18 +494,21 @@
 		spawnFloatingEmoji(emoji);
 	}
 
+	// data: { emoji: count } aggregated by the server
 	function handleReactionBurst(data) {
-		var emoji = data.emoji;
-		var count = data.count || 1;
+		var delay = 0;
 
-		for (var i = 0; i < count; i++) {
-			// Stagger slightly for visual effect
-			(function(delay) {
+		Object.keys(data).forEach(function(emoji) {
+			var count = Math.min(data[emoji], 10);
+
+			for (var i = 0; i < count; i++) {
+				// Stagger slightly for visual effect
 				setTimeout(function() {
 					spawnFloatingEmoji(emoji);
 				}, delay);
-			})(i * 120);
-		}
+				delay += 120;
+			}
+		});
 	}
 
 	function spawnFloatingEmoji(emoji) {

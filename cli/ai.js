@@ -11,6 +11,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const MODEL = process.env.ANNA_AI_MODEL || 'claude-sonnet-5';
+
 const SYSTEM_PROMPT = `You are a presentation designer creating slides for Anna.js, a Markdown-based presentation framework.
 
 OUTPUT FORMAT — produce a single Markdown file with YAML frontmatter. Nothing else.
@@ -96,6 +98,7 @@ function run(args) {
 
   Environment:
     ANTHROPIC_API_KEY     Required. Your Anthropic API key.
+    ANNA_AI_MODEL         Optional. Claude model to use (default: claude-sonnet-5).
 
   Examples:
     anna ai outline.txt
@@ -271,7 +274,7 @@ async function generatePresentation(opts) {
 	console.log('  Generating presentation...');
 
 	const message = await client.messages.create({
-		model: 'claude-sonnet-4-20250514',
+		model: MODEL,
 		max_tokens: 4096,
 		system: SYSTEM_PROMPT,
 		messages: [{ role: 'user', content: userPrompt }],
@@ -287,7 +290,7 @@ async function refinePresentation(opts) {
 	console.log(`  \u2192 Refining ${opts.inputFile}...`);
 
 	const message = await client.messages.create({
-		model: 'claude-sonnet-4-20250514',
+		model: MODEL,
 		max_tokens: 8192,
 		system: REFINE_PROMPT,
 		messages: [{ role: 'user', content: opts.input }],
@@ -305,7 +308,7 @@ async function translatePresentation(opts) {
 	const userPrompt = `Translate the following presentation to language: ${opts.lang}\n\n${opts.input}`;
 
 	const message = await client.messages.create({
-		model: 'claude-sonnet-4-20250514',
+		model: MODEL,
 		max_tokens: 8192,
 		system: TRANSLATE_PROMPT,
 		messages: [{ role: 'user', content: userPrompt }],
